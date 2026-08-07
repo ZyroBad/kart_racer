@@ -1,1 +1,0 @@
-C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\Debug\glfw.lib
