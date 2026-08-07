@@ -1,0 +1,14 @@
+C:\Users\Brenda\Desktop\kart_racer\target\debug\deps\raylib_sys-48bcf2d5c7d75a43.d: C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\lib.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\color.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\math.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\matrix_quat_math.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\vector_math.rs C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out/bindings.rs
+
+C:\Users\Brenda\Desktop\kart_racer\target\debug\deps\libraylib_sys-48bcf2d5c7d75a43.rlib: C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\lib.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\color.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\math.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\matrix_quat_math.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\vector_math.rs C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out/bindings.rs
+
+C:\Users\Brenda\Desktop\kart_racer\target\debug\deps\libraylib_sys-48bcf2d5c7d75a43.rmeta: C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\lib.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\color.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\math.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\matrix_quat_math.rs C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\vector_math.rs C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out/bindings.rs
+
+C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\lib.rs:
+C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\color.rs:
+C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\math.rs:
+C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\matrix_quat_math.rs:
+C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\src\vector_math.rs:
+C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out/bindings.rs:
+
+# env-dep:OUT_DIR=C:\\Users\\Brenda\\Desktop\\kart_racer\\target\\debug\\build\\raylib-sys-1241e2adb795e255\\out

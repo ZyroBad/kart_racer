@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/build/cmake_install.cmake",
+		"C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/build/raylib/cmake_install.cmake",
+		"C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/build/raylib/external/glfw/cmake_install.cmake",
+		"C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/build/raylib/external/glfw/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

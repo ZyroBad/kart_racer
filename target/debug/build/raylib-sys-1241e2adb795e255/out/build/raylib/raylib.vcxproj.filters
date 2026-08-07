@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="17.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\raudio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rcore.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rmodels.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rshapes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rtext.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rtextures.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\raylib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rcamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\rlgl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\raymath.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Brenda\.cargo\registry\src\index.crates.io-1949cf8c6b5b557f\raylib-sys-6.0.0\raylib\src\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\init.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\input.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\monitor.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\platform.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\vulkan.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\window.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\egl_context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\osmesa_context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\null_init.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\null_monitor.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\null_window.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\null_joystick.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_module.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_time.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_thread.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_init.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_joystick.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_monitor.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\win32_window.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+    <Object Include="C:\Users\Brenda\Desktop\kart_racer\target\debug\build\raylib-sys-1241e2adb795e255\out\build\raylib\external\glfw\src\glfw.dir\$(Configuration)\wgl_context.obj">
+      <Filter>Object Libraries</Filter>
+    </Object>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{65579637-CEAD-3BD7-816F-59E7B59BBC68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Object Libraries">
+      <UniqueIdentifier>{F2025124-6EFC-3C72-9F1A-14F5C20E99C8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{FFB7470D-C348-393F-82C9-E9F0D3934A73}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

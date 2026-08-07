@@ -1,0 +1,1 @@
+C:\Users\Brenda\Desktop\kart_racer\target\debug\kart_racer.exe: C:\Users\Brenda\Desktop\kart_racer\src\framebuffer.rs C:\Users\Brenda\Desktop\kart_racer\src\main.rs C:\Users\Brenda\Desktop\kart_racer\src\player.rs

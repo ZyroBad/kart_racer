@@ -1,0 +1,11 @@
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/raylib.lib
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/include/raylib.h
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/include/rcamera.h
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/include/rlgl.h
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/include/raymath.h
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/pkgconfig/raylib.pc
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/cmake/raylib/raylib-config-version.cmake
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/cmake/raylib/raylib-config-version.cmake
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/cmake/raylib/raylib-config.cmake
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/cmake/raylib/raylib-targets.cmake
+C:/Users/Brenda/Desktop/kart_racer/target/debug/build/raylib-sys-1241e2adb795e255/out/lib/cmake/raylib/raylib-targets-debug.cmake
