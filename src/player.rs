@@ -5,6 +5,7 @@ pub struct Player {
     pub y: f32,
     pub angle: f32,
     pub velocity: f32,
+    pub steering: f32,
 
     max_speed: f32,
     reverse_speed: f32,
@@ -21,13 +22,13 @@ impl Player {
             y,
             angle: 0.0,
             velocity: 0.0,
-
-            max_speed: 5.0,
-            reverse_speed: 2.5,
-            acceleration: 8.0,
-            friction: 5.0,
+            steering: 0.0,
+            max_speed: 5.5,
+            reverse_speed: 2.8,
+            acceleration: 8.5,
+            friction: 4.8,
             rotation_speed: 2.4,
-            radius: 0.20,
+            radius: 0.22,
         }
     }
 
@@ -35,31 +36,24 @@ impl Player {
         &mut self,
         rl: &RaylibHandle,
         map: &[Vec<char>],
-        delta_time: f32,
+        dt: f32,
     ) {
-        // Acelerar.
         if rl.is_key_down(KeyboardKey::KEY_W)
             || rl.is_key_down(KeyboardKey::KEY_UP)
         {
-            self.velocity += self.acceleration * delta_time;
-        }
-        // Retroceder.
-        else if rl.is_key_down(KeyboardKey::KEY_S)
+            self.velocity += self.acceleration * dt;
+        } else if rl.is_key_down(KeyboardKey::KEY_S)
             || rl.is_key_down(KeyboardKey::KEY_DOWN)
         {
-            self.velocity -= self.acceleration * delta_time;
-        }
-        // Fricción cuando no se está acelerando.
-        else {
+            self.velocity -= self.acceleration * dt;
+        } else {
             if self.velocity > 0.0 {
-                self.velocity -= self.friction * delta_time;
-
+                self.velocity -= self.friction * dt;
                 if self.velocity < 0.0 {
                     self.velocity = 0.0;
                 }
             } else if self.velocity < 0.0 {
-                self.velocity += self.friction * delta_time;
-
+                self.velocity += self.friction * dt;
                 if self.velocity > 0.0 {
                     self.velocity = 0.0;
                 }
@@ -71,28 +65,44 @@ impl Player {
             self.max_speed,
         );
 
-        // Girar.
-        let mut turn = 0.0;
+        let mut target_steering = 0.0;
 
         if rl.is_key_down(KeyboardKey::KEY_A)
             || rl.is_key_down(KeyboardKey::KEY_LEFT)
         {
-            turn -= 1.0;
+            target_steering -= 1.0;
         }
 
         if rl.is_key_down(KeyboardKey::KEY_D)
             || rl.is_key_down(KeyboardKey::KEY_RIGHT)
         {
-            turn += 1.0;
+            target_steering += 1.0;
         }
 
-        if turn != 0.0 {
-            // Permite girar incluso detenido para que el avance
-            // sea fácil de probar.
-            self.angle += turn * self.rotation_speed * delta_time;
+        self.steering +=
+            (target_steering - self.steering)
+                * (8.0 * dt).min(1.0);
+
+        if target_steering == 0.0 {
+            self.steering *= (1.0 - 6.0 * dt).max(0.0);
         }
 
-        // Mantener ángulo en 0..TAU.
+        if target_steering != 0.0 {
+            let speed_factor =
+                (self.velocity.abs() / self.max_speed)
+                    .clamp(0.30, 1.0);
+
+            let reverse_sign =
+                if self.velocity < 0.0 { -1.0 } else { 1.0 };
+
+            self.angle +=
+                target_steering
+                * self.rotation_speed
+                * speed_factor
+                * reverse_sign
+                * dt;
+        }
+
         let tau = std::f32::consts::TAU;
 
         while self.angle >= tau {
@@ -103,24 +113,32 @@ impl Player {
             self.angle += tau;
         }
 
-        // Movimiento hacia donde mira el carro.
-        let movement = self.velocity * delta_time;
+        let movement = self.velocity * dt;
 
-        let next_x = self.x + self.angle.cos() * movement;
-        let next_y = self.y + self.angle.sin() * movement;
+        let next_x =
+            self.x + self.angle.cos() * movement;
+        let next_y =
+            self.y + self.angle.sin() * movement;
 
-        // Se prueban los ejes por separado para que el carro
-        // pueda deslizarse contra una pared.
+        let mut collision = false;
+
         if !self.collides(map, next_x, self.y) {
             self.x = next_x;
         } else {
-            self.velocity *= 0.30;
+            collision = true;
         }
 
         if !self.collides(map, self.x, next_y) {
             self.y = next_y;
         } else {
-            self.velocity *= 0.30;
+            collision = true;
+        }
+
+        if collision {
+            self.velocity *= 0.20;
+            if self.velocity.abs() < 0.10 {
+                self.velocity = 0.0;
+            }
         }
     }
 
@@ -130,11 +148,12 @@ impl Player {
         x: f32,
         y: f32,
     ) -> bool {
+        let r = self.radius;
+
         let points = [
-            (x - self.radius, y - self.radius),
-            (x + self.radius, y - self.radius),
-            (x - self.radius, y + self.radius),
-            (x + self.radius, y + self.radius),
+            (x-r, y-r), (x, y-r), (x+r, y-r),
+            (x-r, y),             (x+r, y),
+            (x-r, y+r), (x, y+r), (x+r, y+r),
         ];
 
         for (px, py) in points {
@@ -149,7 +168,7 @@ impl Player {
                 return true;
             }
 
-            if is_wall(map[row][col]) {
+            if is_solid(map[row][col]) {
                 return true;
             }
         }
@@ -158,6 +177,18 @@ impl Player {
     }
 }
 
+pub fn is_solid(tile: char) -> bool {
+    matches!(
+        tile,
+        '#' | 'H' | 'S' | 'W'
+        | 'R' | 'G' | 'Y'
+    )
+}
+
 pub fn is_wall(tile: char) -> bool {
-    matches!(tile, '#' | 'R' | 'G' | 'Y')
+    matches!(
+        tile,
+        '#' | 'H' | 'S' | 'W'
+        | 'R' | 'G' | 'Y'
+    )
 }
