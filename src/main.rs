@@ -1,5 +1,9 @@
 mod framebuffer;
+mod kart;
+mod minimap;
 mod player;
+mod raycaster;
+mod scenery;
 
 use framebuffer::Framebuffer;
 use player::Player;
@@ -17,41 +21,41 @@ const MAP: [&str; 41] = [
     "#...............................................................#",
     "#...............................................................#",
     "#...............................................................#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPP.............................................PPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPP.......T.T.......PPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPP.................PPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPP.............PPPPPPPPPPPPPPPPPPP.............PPPPPP...#",
+    "#...PPPPPP.............PPPPPPPPPPPPPPPPPPP.............PPPPPP...#",
+    "#...PPPPPP..HHHHHHHHH..PPPPP.........PPPPP..HHHHHHHHH..PPPPPP...#",
+    "#...PPPPPP..H.......H..PPPPP.SSSSSSS.PPPPP..H.......H..PPPPPP...#",
+    "#...PPPPPP..H.FFFFF.H..PPPPP.SWWWWWS.PPPPP..H.FFFFF.H..PPPPPP...#",
+    "#...PPPPPP.TH.FFFFF.H..PPPPP.SWWWWWS.PPPPP..H.FFFFF.HT.PPPPPP...#",
+    "#...PPPPPP..H.FFFFF.H..PPPPP.SWWWWWS.PPPPP..H.FFFFF.H..PPPPPP...#",
+    "#...PPPPPP..H.......H..PPPPP.SSSSSSS.PPPPP..H.......H..PPPPPP...#",
+    "#...PPPPPP..HHHHHHHHH..PPPPP.........PPPPP..HHHHHHHHH..PPPPPP...#",
+    "#...PPPPPP.............PPPPPPPPPPPPPPPPPPP.............PPPPPP...#",
+    "#...PPPPPP.............PPPPPPPPPPPPPPPPPPP.............PPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPP...............PPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPPPPPPPPPPPPPPPPP......T.T......PPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPPPP.............................................PPPPPP...#",
+    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
+    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
     "#...............................................................#",
-    "#......HHHHHHHHHHHH...........................HHHHHHHHHHHH......#",
-    "#......H..........H...........................H..........H......#",
-    "#......H..........H...HHHHHHH.......HHHHHHH...H..........H......#",
-    "#......H..FFFFFF..H...........................H..FFFFFF..H......#",
-    "#......H..FFFFFF..H...........................H..FFFFFF..H......#",
-    "#......H..........H....S.................S....H..........H......#",
-    "#......H..........H...........................H..........H......#",
-    "#......HHHHHHHHHHHH...........................HHHHHHHHHHHH......#",
     "#...............................................................#",
-    "#..........................SSSSSSSSSSS..........................#",
-    "#.......H.......................................................#",
-    "#.......H................S.............S........................#",
-    "#.......H................S....WWWWW....S........................#",
-    "#.......H................S...WWWWWWW...S........................#",
-    "#.......H................S..WWWWWWWWW..S................H.......#",
-    "#....S..H................S..WWWWWWWWW..S................H..S....#",
-    "#.......H................S..WWWWWWWWW..S................H.......#",
-    "#........................S...WWWWWWW...S................H.......#",
-    "#........................S....WWWWW....S................H.......#",
-    "#........................S.............S................H.......#",
-    "#.......................................................H.......#",
-    "#..........................SSSSSSSSSSS..........................#",
-    "#.......HHHHHHHHHHHHH.......................HHHHHHHHHHHHH.......#",
-    "#.......H...........H.......................H...........H.......#",
-    "#.......H...........H.S...................S.H...........H.......#",
-    "#.......H..FFFFFFF..H.......................H..FFFFFFF..H.......#",
-    "#.......H..FFFFFFF..H.......................H..FFFFFFF..H.......#",
-    "#.......H..FFFFFFF..H.......................H..FFFFFFF..H.......#",
-    "#.......H...........H.HHHHHHH.......HHHHHHH.H...........H.......#",
-    "#.......H...........H.......................H...........H.......#",
-    "#.......HHHHHHHHHHHHH.......................HHHHHHHHHHHHH.......#",
-    "#...............................................................#",
-    "#...S....S......................................................#",
-    "#...S....S......................................................#",
     "#...............................................................#",
     "#################################################################"
 ];
@@ -62,8 +66,8 @@ fn main() {
             .map(|row| row.chars().collect())
             .collect();
 
-    // Salida en la zona inferior izquierda.
-    let mut player = Player::new(6.5, 37.5);
+    let mut player =
+        Player::new(6.0, 34.0);
 
     let framebuffer =
         Framebuffer::new(
@@ -73,15 +77,22 @@ fn main() {
 
     let (mut rl, thread) =
         raylib::init()
-            .size(WINDOW_WIDTH, WINDOW_HEIGHT)
-            .title("Kart Racer - Garden Circuit")
+            .size(
+                WINDOW_WIDTH,
+                WINDOW_HEIGHT,
+            )
+            .title(
+                "Kart Racer - Refactor"
+            )
             .resizable()
             .build();
 
     rl.set_target_fps(60);
 
     while !rl.window_should_close() {
-        let dt = rl.get_frame_time().min(0.05);
+        let dt =
+            rl.get_frame_time()
+                .min(0.05);
 
         player.update(
             &rl,
@@ -90,7 +101,9 @@ fn main() {
         );
 
         let mut draw =
-            rl.begin_drawing(&thread);
+            rl.begin_drawing(
+                &thread
+            );
 
         framebuffer.render(
             &mut draw,
