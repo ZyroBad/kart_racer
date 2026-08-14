@@ -2,11 +2,13 @@ mod framebuffer;
 mod kart;
 mod minimap;
 mod player;
+mod race;
 mod raycaster;
 mod scenery;
 
 use framebuffer::Framebuffer;
 use player::Player;
+use race::Race;
 use raylib::prelude::*;
 use std::f32::consts::PI;
 
@@ -69,6 +71,9 @@ fn main() {
     let mut player =
         Player::new(6.0, 34.0);
 
+    let mut race =
+        Race::new();
+
     let framebuffer =
         Framebuffer::new(
             WINDOW_WIDTH,
@@ -77,13 +82,8 @@ fn main() {
 
     let (mut rl, thread) =
         raylib::init()
-            .size(
-                WINDOW_WIDTH,
-                WINDOW_HEIGHT,
-            )
-            .title(
-                "Kart Racer - Refactor"
-            )
+            .size(WINDOW_WIDTH, WINDOW_HEIGHT)
+            .title("Kart Racer - Checkpoints y Vueltas")
             .resizable()
             .build();
 
@@ -94,11 +94,17 @@ fn main() {
             rl.get_frame_time()
                 .min(0.05);
 
-        player.update(
-            &rl,
-            &map,
-            dt,
-        );
+        if !race.finished() {
+            player.update(
+                &rl,
+                &map,
+                dt,
+            );
+
+            race.update(
+                &player
+            );
+        }
 
         let mut draw =
             rl.begin_drawing(
@@ -109,6 +115,7 @@ fn main() {
             &mut draw,
             &map,
             &player,
+            &race,
             FOV,
             NUMBER_OF_RAYS,
         );
