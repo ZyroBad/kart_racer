@@ -2,6 +2,7 @@ use raylib::prelude::*;
 
 use crate::{
     player::Player,
+    race::Race,
     raycaster::RayHit,
 };
 
@@ -110,7 +111,7 @@ pub fn draw_scenery(
 
     objects.sort_by(
         |a, b| {
-            let distance_a =
+            let da =
                 (
                     a.x - player.x
                 ).powi(2)
@@ -118,7 +119,7 @@ pub fn draw_scenery(
                     a.y - player.y
                 ).powi(2);
 
-            let distance_b =
+            let db =
                 (
                     b.x - player.x
                 ).powi(2)
@@ -126,10 +127,7 @@ pub fn draw_scenery(
                     b.y - player.y
                 ).powi(2);
 
-            distance_b
-                .partial_cmp(
-                    &distance_a
-                )
+            db.partial_cmp(&da)
                 .unwrap_or(
                     std::cmp::Ordering::Equal
                 )
@@ -147,6 +145,235 @@ pub fn draw_scenery(
             object,
         );
     }
+}
+
+pub fn draw_checkpoint(
+    draw: &mut RaylibDrawHandle,
+    width: i32,
+    height: i32,
+    player: &Player,
+    race: &Race,
+    fov: f32,
+    rays: &[RayHit],
+) {
+    let Some(checkpoint) =
+        race.active_checkpoint()
+    else {
+        return;
+    };
+
+    if rays.is_empty() {
+        return;
+    }
+
+    let dx =
+        checkpoint.x
+        - player.x;
+
+    let dy =
+        checkpoint.y
+        - player.y;
+
+    let raw_distance =
+        (
+            dx * dx
+            + dy * dy
+        ).sqrt();
+
+    if raw_distance < 0.1 {
+        return;
+    }
+
+    let object_angle =
+        dy.atan2(dx);
+
+    let relative_angle =
+        normalize_angle(
+            object_angle
+            - player.angle
+        );
+
+    if relative_angle.abs()
+        > fov * 0.62
+    {
+        return;
+    }
+
+    let corrected_distance =
+        raw_distance
+        * relative_angle.cos();
+
+    if corrected_distance <= 0.05 {
+        return;
+    }
+
+    let screen_x =
+        width as f32 / 2.0
+        + (
+            relative_angle
+            / (fov / 2.0)
+        )
+        * (
+            width as f32 / 2.0
+        );
+
+    let ray_index =
+        (
+            screen_x
+            / width as f32
+            * rays.len() as f32
+        ) as isize;
+
+    if ray_index < 0
+        || ray_index
+            >= rays.len() as isize
+    {
+        return;
+    }
+
+    let wall_distance =
+        rays[
+            ray_index as usize
+        ]
+        .corrected_distance;
+
+    // Si hay pared/seto antes, el checkpoint no atraviesa.
+    if corrected_distance
+        > wall_distance + 0.18
+    {
+        return;
+    }
+
+    let size =
+        (
+            600.0
+            / corrected_distance
+        )
+        .clamp(
+            35.0,
+            260.0,
+        );
+
+    let horizon =
+        height as f32 / 2.0;
+
+    let ground_y =
+        horizon
+        + (
+            95.0
+            / corrected_distance
+                .max(0.35)
+        )
+        .clamp(
+            0.0,
+            175.0,
+        );
+
+    let top_y =
+        ground_y
+        - size;
+
+    let half_width =
+        size * 0.32;
+
+    let glow =
+        Color::new(
+            255,
+            225,
+            60,
+            70,
+        );
+
+    let bright =
+        Color::new(
+            255,
+            230,
+            70,
+            255,
+        );
+
+    // Halo grande
+    draw.draw_circle(
+        screen_x as i32,
+        (
+            top_y
+            + size * 0.48
+        ) as i32,
+        size * 0.43,
+        glow,
+    );
+
+    // Dos pilares
+    draw.draw_rectangle(
+        (
+            screen_x
+            - half_width
+        ) as i32,
+        top_y as i32,
+        (size * 0.08) as i32,
+        size as i32,
+        bright,
+    );
+
+    draw.draw_rectangle(
+        (
+            screen_x
+            + half_width
+            - size * 0.08
+        ) as i32,
+        top_y as i32,
+        (size * 0.08) as i32,
+        size as i32,
+        bright,
+    );
+
+    // Parte superior
+    draw.draw_rectangle(
+        (
+            screen_x
+            - half_width
+        ) as i32,
+        top_y as i32,
+        (
+            half_width
+            * 2.0
+        ) as i32,
+        (size * 0.08) as i32,
+        bright,
+    );
+
+    // Etiqueta
+    let label =
+        "CHECKPOINT";
+
+    let font_size =
+        (size * 0.10)
+            .clamp(
+                12.0,
+                24.0,
+            ) as i32;
+
+    let text_width =
+        draw.measure_text(
+            label,
+            font_size,
+        );
+
+    draw.draw_text(
+        label,
+        (
+            screen_x
+            - text_width as f32
+                / 2.0
+        ) as i32,
+        (
+            top_y
+            - font_size as f32
+            - 6.0
+        ) as i32,
+        font_size,
+        Color::YELLOW,
+    );
 }
 
 fn draw_object(
@@ -290,8 +517,9 @@ fn draw_tree(
     let horizon =
         height as f32 / 2.0;
 
-    let ground_offset =
-        (
+    let ground_y =
+        horizon
+        + (
             95.0
             / distance.max(0.35)
         )
@@ -299,10 +527,6 @@ fn draw_tree(
             0.0,
             180.0,
         );
-
-    let ground_y =
-        horizon
-        + ground_offset;
 
     let trunk_height =
         size * 0.48;
@@ -318,7 +542,8 @@ fn draw_tree(
             1.0
             / (
                 1.0
-                + distance * 0.05
+                + distance
+                    * 0.05
             )
         )
         .clamp(
@@ -344,15 +569,12 @@ fn draw_tree(
             screen_x
             - trunk_width / 2.0
         ) as i32,
-
         (
             ground_y
             - trunk_height
         ) as i32,
-
         trunk_width as i32,
         trunk_height as i32,
-
         shade_color(
             Color::new(
                 115,
@@ -397,11 +619,8 @@ fn draw_tree(
             - crown_radius
                 * 0.55
         ) as i32,
-
         crown_y as i32,
-
         crown_radius,
-
         leaves_dark,
     );
 
@@ -411,26 +630,20 @@ fn draw_tree(
             + crown_radius
                 * 0.55
         ) as i32,
-
         crown_y as i32,
-
         crown_radius,
-
         leaves_dark,
     );
 
     draw.draw_circle(
         screen_x as i32,
-
         (
             crown_y
             - crown_radius
                 * 0.55
         ) as i32,
-
         crown_radius
             * 1.10,
-
         leaves,
     );
 
@@ -461,31 +674,6 @@ fn draw_flowers(
         .clamp(
             0.0,
             170.0,
-        );
-
-    let shade =
-        (
-            1.0
-            / (
-                1.0
-                + distance
-                    * 0.05
-            )
-        )
-        .clamp(
-            0.55,
-            1.0,
-        );
-
-    let stem =
-        shade_color(
-            Color::new(
-                45,
-                125,
-                50,
-                255,
-            ),
-            shade,
         );
 
     let colors = [
@@ -539,7 +727,12 @@ fn draw_flowers(
             ground_y as i32,
             x as i32,
             top as i32,
-            stem,
+            Color::new(
+                45,
+                125,
+                50,
+                255,
+            ),
         );
 
         draw.draw_circle(
@@ -547,13 +740,9 @@ fn draw_flowers(
             top as i32,
             (size * 0.09)
                 .max(2.0),
-
-            shade_color(
-                colors[
-                    i % colors.len()
-                ],
-                shade,
-            ),
+            colors[
+                i % colors.len()
+            ],
         );
     }
 }
@@ -583,13 +772,10 @@ fn draw_cloud(
         x
         + (30.0 * scale)
             as i32,
-
         y
         - (8.0 * scale)
             as i32,
-
         31.0 * scale,
-
         color,
     );
 
@@ -597,11 +783,8 @@ fn draw_cloud(
         x
         + (60.0 * scale)
             as i32,
-
         y,
-
         24.0 * scale,
-
         color,
     );
 
@@ -645,17 +828,14 @@ fn shade_color(
             color.r as f32
             * factor
         ) as u8,
-
         (
             color.g as f32
             * factor
         ) as u8,
-
         (
             color.b as f32
             * factor
         ) as u8,
-
         color.a,
     )
 }

@@ -9,41 +9,43 @@ use crate::{
     scenery,
 };
 
-pub struct Framebuffer {
-    width: i32,
-    height: i32,
-}
+pub struct Framebuffer;
 
 impl Framebuffer {
-    pub fn new(
-        width: i32,
-        height: i32,
-    ) -> Self {
-        Self {
-            width,
-            height,
-        }
+    pub fn new() -> Self {
+        Self
     }
 
     pub fn render(
         &self,
         draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
         map: &[Vec<char>],
         player: &Player,
         race: &Race,
         fov: f32,
         number_of_rays: usize,
     ) {
+        // IMPORTANTE:
+        // Limpiamos TODA la ventana cada frame.
+        //
+        // Esto evita que al maximizar queden partes negras
+        // o imágenes viejas del kart en pantalla.
+        draw.clear_background(
+            Color::BLACK
+        );
+
         scenery::draw_sky(
             draw,
-            self.width,
-            self.height,
+            width,
+            height,
         );
 
         raycaster::draw_floor(
             draw,
-            self.width,
-            self.height,
+            width,
+            height,
             map,
             player,
             fov,
@@ -59,40 +61,53 @@ impl Framebuffer {
 
         raycaster::draw_walls(
             draw,
-            self.width,
-            self.height,
+            width,
+            height,
             &rays,
             fov,
         );
 
         scenery::draw_scenery(
             draw,
-            self.width,
-            self.height,
+            width,
+            height,
             map,
             player,
             fov,
             &rays,
         );
 
+        scenery::draw_checkpoint(
+            draw,
+            width,
+            height,
+            player,
+            race,
+            fov,
+            &rays,
+        );
+
         minimap::draw_minimap(
             draw,
-            self.width,
+            width,
             map,
             player,
+            race,
             &rays,
         );
 
         kart::draw_kart(
             draw,
-            self.width,
-            self.height,
+            width,
+            height,
             player.velocity,
             player.steering,
         );
 
         self.draw_race_hud(
             draw,
+            width,
+            height,
             race,
         );
     }
@@ -100,6 +115,8 @@ impl Framebuffer {
     fn draw_race_hud(
         &self,
         draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
         race: &Race,
     ) {
         draw.draw_rectangle(
@@ -143,7 +160,9 @@ impl Framebuffer {
 
         if race.finished() {
             self.draw_finish_screen(
-                draw
+                draw,
+                width,
+                height,
             );
         }
     }
@@ -151,12 +170,14 @@ impl Framebuffer {
     fn draw_finish_screen(
         &self,
         draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
     ) {
         draw.draw_rectangle(
             0,
             0,
-            self.width,
-            self.height,
+            width,
+            height,
             Color::new(
                 0,
                 0,
@@ -180,10 +201,10 @@ impl Framebuffer {
         draw.draw_text(
             title,
             (
-                self.width
+                width
                 - title_width
             ) / 2,
-            self.height / 2 - 65,
+            height / 2 - 65,
             title_size,
             Color::YELLOW,
         );
@@ -203,10 +224,10 @@ impl Framebuffer {
         draw.draw_text(
             subtitle,
             (
-                self.width
+                width
                 - subtitle_width
             ) / 2,
-            self.height / 2 + 5,
+            height / 2 + 5,
             subtitle_size,
             Color::RAYWHITE,
         );

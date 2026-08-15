@@ -75,10 +75,7 @@ fn main() {
         Race::new();
 
     let framebuffer =
-        Framebuffer::new(
-            WINDOW_WIDTH,
-            WINDOW_HEIGHT,
-        );
+        Framebuffer::new();
 
     let (mut rl, thread) =
         raylib::init()
@@ -106,6 +103,14 @@ fn main() {
             );
         }
 
+        // El tamaño real puede cambiar cuando
+        // la ventana se maximiza o se redimensiona.
+        let screen_width =
+            rl.get_screen_width();
+
+        let screen_height =
+            rl.get_screen_height();
+
         let mut draw =
             rl.begin_drawing(
                 &thread
@@ -113,6 +118,8 @@ fn main() {
 
         framebuffer.render(
             &mut draw,
+            screen_width,
+            screen_height,
             &map,
             &player,
             &race,

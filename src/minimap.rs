@@ -2,6 +2,7 @@ use raylib::prelude::*;
 
 use crate::{
     player::Player,
+    race::Race,
     raycaster::RayHit,
 };
 
@@ -10,6 +11,7 @@ pub fn draw_minimap(
     width: i32,
     map: &[Vec<char>],
     player: &Player,
+    race: &Race,
     rays: &[RayHit],
 ) {
     let scale =
@@ -119,7 +121,52 @@ pub fn draw_minimap(
                 255,
                 235,
                 110,
+                55,
+            ),
+        );
+    }
+
+    // Checkpoint activo
+    if let Some(checkpoint) =
+        race.active_checkpoint()
+    {
+        let checkpoint_x =
+            origin_x
+            + checkpoint.x
+                * scale;
+
+        let checkpoint_y =
+            origin_y
+            + checkpoint.y
+                * scale;
+
+        // Halo exterior
+        draw.draw_circle_lines(
+            checkpoint_x as i32,
+            checkpoint_y as i32,
+            7.0,
+            Color::YELLOW,
+        );
+
+        // Centro
+        draw.draw_circle(
+            checkpoint_x as i32,
+            checkpoint_y as i32,
+            3.0,
+            Color::YELLOW,
+        );
+
+        // Línea desde jugador al objetivo
+        draw.draw_line(
+            player_x as i32,
+            player_y as i32,
+            checkpoint_x as i32,
+            checkpoint_y as i32,
+            Color::new(
+                255,
+                230,
                 70,
+                180,
             ),
         );
     }
@@ -128,7 +175,7 @@ pub fn draw_minimap(
         player_x as i32,
         player_y as i32,
         4.0,
-        Color::YELLOW,
+        Color::RAYWHITE,
     );
 
     draw.draw_line(
