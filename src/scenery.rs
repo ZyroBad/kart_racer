@@ -91,7 +91,7 @@ pub fn draw_scenery(
         {
             if matches!(
                 *tile,
-                'T' | 'F'
+                'T' | 'F' | 'O' | 'C' | 'B' | 'A'
             ) {
                 objects.push(
                     Scenery {
@@ -503,6 +503,62 @@ fn draw_object(
             );
         }
 
+        'O' => {
+            let size =
+                (180.0 / corrected_distance)
+                .clamp(12.0, 95.0);
+
+            draw_cone(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
+        'C' => {
+            let size =
+                (260.0 / corrected_distance)
+                .clamp(18.0, 140.0);
+
+            draw_crate(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
+        'B' => {
+            let size =
+                (360.0 / corrected_distance)
+                .clamp(26.0, 190.0);
+
+            draw_barrier(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
+        'A' => {
+            let size =
+                (390.0 / corrected_distance)
+                .clamp(24.0, 210.0);
+
+            draw_statue(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
         _ => {}
     }
 }
@@ -745,6 +801,216 @@ fn draw_flowers(
             ],
         );
     }
+}
+
+
+fn object_ground_y(
+    height: i32,
+    distance: f32,
+) -> f32 {
+    height as f32 / 2.0
+        + (95.0 / distance.max(0.35))
+            .clamp(0.0, 175.0)
+}
+
+fn draw_cone(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let orange =
+        Color::new(245, 125, 25, 255);
+
+    let white =
+        Color::new(245, 245, 235, 255);
+
+    draw.draw_triangle(
+        Vector2::new(x, ground_y - size),
+        Vector2::new(x - size * 0.35, ground_y),
+        Vector2::new(x + size * 0.35, ground_y),
+        orange,
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.20) as i32,
+        (ground_y - size * 0.45) as i32,
+        (size * 0.40) as i32,
+        (size * 0.12) as i32,
+        white,
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.43) as i32,
+        ground_y as i32,
+        (size * 0.86) as i32,
+        (size * 0.10) as i32,
+        Color::new(40, 40, 45, 255),
+    );
+}
+
+fn draw_crate(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let left =
+        x - size * 0.5;
+
+    let top =
+        ground_y - size;
+
+    let wood =
+        Color::new(155, 102, 55, 255);
+
+    let dark =
+        Color::new(95, 58, 32, 255);
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        size as i32,
+        size as i32,
+        wood,
+    );
+
+    draw.draw_rectangle_lines(
+        left as i32,
+        top as i32,
+        size as i32,
+        size as i32,
+        dark,
+    );
+
+    draw.draw_line(
+        left as i32,
+        top as i32,
+        (left + size) as i32,
+        ground_y as i32,
+        dark,
+    );
+
+    draw.draw_line(
+        (left + size) as i32,
+        top as i32,
+        left as i32,
+        ground_y as i32,
+        dark,
+    );
+}
+
+fn draw_barrier(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let width =
+        size * 1.25;
+
+    let bar_h =
+        size * 0.30;
+
+    let left =
+        x - width / 2.0;
+
+    let top =
+        ground_y - size * 0.65;
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        width as i32,
+        bar_h as i32,
+        Color::RAYWHITE,
+    );
+
+    let stripe_w =
+        width / 5.0;
+
+    for i in 0..5 {
+        if i % 2 == 0 {
+            draw.draw_rectangle(
+                (left + i as f32 * stripe_w) as i32,
+                top as i32,
+                stripe_w as i32,
+                bar_h as i32,
+                Color::RED,
+            );
+        }
+    }
+
+    let leg_w =
+        size * 0.10;
+
+    draw.draw_rectangle(
+        (left + size * 0.15) as i32,
+        (top + bar_h) as i32,
+        leg_w as i32,
+        (size * 0.35) as i32,
+        Color::new(55, 55, 60, 255),
+    );
+
+    draw.draw_rectangle(
+        (left + width - size * 0.25) as i32,
+        (top + bar_h) as i32,
+        leg_w as i32,
+        (size * 0.35) as i32,
+        Color::new(55, 55, 60, 255),
+    );
+}
+
+fn draw_statue(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let stone =
+        Color::new(185, 185, 195, 255);
+
+    let dark =
+        Color::new(120, 120, 130, 255);
+
+    draw.draw_rectangle(
+        (x - size * 0.32) as i32,
+        (ground_y - size * 0.22) as i32,
+        (size * 0.64) as i32,
+        (size * 0.22) as i32,
+        dark,
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.20) as i32,
+        (ground_y - size * 0.70) as i32,
+        (size * 0.40) as i32,
+        (size * 0.50) as i32,
+        stone,
+    );
+
+    draw.draw_circle(
+        x as i32,
+        (ground_y - size * 0.82) as i32,
+        size * 0.20,
+        stone,
+    );
 }
 
 fn draw_cloud(

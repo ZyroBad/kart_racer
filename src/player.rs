@@ -6,6 +6,7 @@ pub struct Player {
     pub angle: f32,
     pub velocity: f32,
     pub steering: f32,
+    pub drift: f32,
 
     max_speed: f32,
     reverse_speed: f32,
@@ -27,14 +28,15 @@ impl Player {
             angle: 0.0,
             velocity: 0.0,
             steering: 0.0,
+            drift: 0.0,
 
-            max_speed: 5.5,
-            reverse_speed: 2.8,
-            acceleration: 8.5,
-            friction: 4.8,
+            max_speed: 6.8,
+            reverse_speed: 3.2,
+            acceleration: 10.5,
+            friction: 5.2,
 
-            rotation_speed: 3.8,
-            low_speed_rotation: 2.7,
+            rotation_speed: 3.4,
+            low_speed_rotation: 2.4,
 
             radius: 0.22,
         }
@@ -46,9 +48,19 @@ impl Player {
         map: &[Vec<char>],
         dt: f32,
     ) {
+        let surface_factor =
+            surface_speed_factor(
+                tile_at(
+                    map,
+                    self.x,
+                    self.y,
+                )
+            );
+
         self.update_speed(
             rl,
             dt,
+            surface_factor,
         );
 
         self.update_rotation(
@@ -60,13 +72,26 @@ impl Player {
             map,
             dt,
         );
+
+        self.update_drift(
+            dt,
+        );
     }
 
     fn update_speed(
         &mut self,
         rl: &RaylibHandle,
         dt: f32,
+        surface_factor: f32,
     ) {
+        let surface_acceleration =
+            self.acceleration
+            * (
+                0.72
+                + surface_factor
+                    * 0.28
+            );
+
         if rl.is_key_down(
             KeyboardKey::KEY_W
         )
@@ -75,7 +100,7 @@ impl Player {
             )
         {
             self.velocity +=
-                self.acceleration
+                surface_acceleration
                     * dt;
         } else if rl.is_key_down(
             KeyboardKey::KEY_S
@@ -85,7 +110,7 @@ impl Player {
             )
         {
             self.velocity -=
-                self.acceleration
+                surface_acceleration
                     * dt;
         } else {
             if self.velocity > 0.0 {
@@ -107,10 +132,18 @@ impl Player {
             }
         }
 
+        let current_max_speed =
+            self.max_speed
+            * surface_factor;
+
+        let current_reverse_speed =
+            self.reverse_speed
+            * surface_factor.max(0.65);
+
         self.velocity =
             self.velocity.clamp(
-                -self.reverse_speed,
-                self.max_speed,
+                -current_reverse_speed,
+                current_max_speed,
             );
     }
 
@@ -200,6 +233,29 @@ impl Player {
         while self.angle < 0.0 {
             self.angle += tau;
         }
+    }
+
+    fn update_drift(
+        &mut self,
+        dt: f32,
+    ) {
+        let target =
+            (
+                self.steering.abs()
+                * (self.velocity.abs() / self.max_speed)
+            )
+            .clamp(
+                0.0,
+                1.0,
+            );
+
+        self.drift +=
+            (
+                target
+                - self.drift
+            )
+            * (8.0 * dt)
+                .min(1.0);
     }
 
     fn update_position(
@@ -323,6 +379,10 @@ pub fn is_solid(
         | 'S'
         | 'W'
         | 'T'
+        | 'O'
+        | 'C'
+        | 'B'
+        | 'A'
     )
 }
 
@@ -336,4 +396,43 @@ pub fn is_wall(
         | 'S'
         | 'W'
     )
+}
+
+fn tile_at(
+    map: &[Vec<char>],
+    x: f32,
+    y: f32,
+) -> char {
+    if x < 0.0
+        || y < 0.0
+    {
+        return '#';
+    }
+
+    let col =
+        x.floor()
+            as usize;
+
+    let row =
+        y.floor()
+            as usize;
+
+    if row >= map.len()
+        || col >= map[row].len()
+    {
+        '#'
+    } else {
+        map[row][col]
+    }
+}
+
+fn surface_speed_factor(
+    tile: char,
+) -> f32 {
+    match tile {
+        'P' | 'M' => 1.0,
+        'F' => 0.68,
+        '.' => 0.52,
+        _ => 0.82,
+    }
 }

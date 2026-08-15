@@ -6,34 +6,45 @@ pub fn draw_kart(
     height: i32,
     velocity: f32,
     steering: f32,
+    drift: f32,
+    time: f32,
 ) {
+    let scale =
+        (
+            width as f32 / 1200.0
+        )
+        .min(
+            height as f32 / 720.0
+        )
+        .clamp(
+            1.08,
+            1.48,
+        );
+
     let center_x =
-        width / 2;
+        width as f32 / 2.0;
 
     let bottom =
-        height - 20;
+        height as f32
+        - 20.0 * scale;
 
     let bounce =
         (
             velocity.abs()
-            * 1.5
+            * 1.8
         )
-        .min(3.0)
-        as i32;
+        .min(5.0)
+        * scale;
 
     let turn_offset =
-        (
-            steering
-            * 24.0
-        )
-        as i32;
+        steering
+        * 28.0
+        * scale;
 
     let body_shift =
-        (
-            steering
-            * 10.0
-        )
-        as i32;
+        steering
+        * 13.0
+        * scale;
 
     let center =
         center_x
@@ -43,11 +54,122 @@ pub fn draw_kart(
         bottom
         - bounce;
 
+    if drift > 0.18
+        && velocity.abs() > 2.0
+    {
+        let side =
+            if steering >= 0.0 {
+                -1.0
+            } else {
+                1.0
+            };
+
+        for i in 0..4 {
+            let t =
+                i as f32;
+
+            let wave =
+                (time * 16.0 + t)
+                    .sin()
+                    * 5.0
+                    * scale;
+
+            let smoke_x =
+                center
+                + side
+                    * (
+                        68.0
+                        + t * 12.0
+                    )
+                    * scale
+                + wave;
+
+            let smoke_y =
+                y
+                - (
+                    18.0
+                    + t * 10.0
+                )
+                * scale;
+
+            let alpha =
+                (90.0 * drift)
+                    as u8;
+
+            draw.draw_circle(
+                smoke_x as i32,
+                smoke_y as i32,
+                (
+                    9.0
+                    + t * 2.0
+                )
+                * scale,
+                Color::new(
+                    230,
+                    230,
+                    220,
+                    alpha,
+                ),
+            );
+        }
+
+        let mark_color =
+            Color::new(
+                20,
+                20,
+                20,
+                (120.0 * drift)
+                    as u8,
+            );
+
+        draw.draw_line(
+            (
+                center
+                - 64.0 * scale
+            ) as i32,
+            (
+                y
+                - 4.0 * scale
+            ) as i32,
+            (
+                center
+                - 118.0 * scale
+                - steering * 24.0 * scale
+            ) as i32,
+            (
+                y
+                + 18.0 * scale
+            ) as i32,
+            mark_color,
+        );
+
+        draw.draw_line(
+            (
+                center
+                + 64.0 * scale
+            ) as i32,
+            (
+                y
+                - 4.0 * scale
+            ) as i32,
+            (
+                center
+                + 118.0 * scale
+                - steering * 24.0 * scale
+            ) as i32,
+            (
+                y
+                + 18.0 * scale
+            ) as i32,
+            mark_color,
+        );
+    }
+
     draw.draw_ellipse(
-        center,
-        y - 8,
-        85.0,
-        18.0,
+        center as i32,
+        (y - 8.0 * scale) as i32,
+        85.0 * scale,
+        18.0 * scale,
         Color::new(
             20,
             20,
@@ -57,10 +179,10 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center - 82 - body_shift,
-        y - 69,
-        28,
-        55,
+        (center - 82.0 * scale - body_shift) as i32,
+        (y - 69.0 * scale) as i32,
+        (28.0 * scale) as i32,
+        (55.0 * scale) as i32,
         Color::new(
             24,
             25,
@@ -70,10 +192,10 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center + 54 - body_shift,
-        y - 69,
-        28,
-        55,
+        (center + 54.0 * scale - body_shift) as i32,
+        (y - 69.0 * scale) as i32,
+        (28.0 * scale) as i32,
+        (55.0 * scale) as i32,
         Color::new(
             24,
             25,
@@ -83,10 +205,10 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center - 67,
-        y - 42,
-        134,
-        24,
+        (center - 67.0 * scale) as i32,
+        (y - 42.0 * scale) as i32,
+        (134.0 * scale) as i32,
+        (24.0 * scale) as i32,
         Color::new(
             180,
             35,
@@ -96,10 +218,10 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center - 55 + body_shift,
-        y - 90,
-        110,
-        50,
+        (center - 55.0 * scale + body_shift) as i32,
+        (y - 90.0 * scale) as i32,
+        (110.0 * scale) as i32,
+        (50.0 * scale) as i32,
         Color::new(
             220,
             43,
@@ -109,10 +231,10 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center - 39 + body_shift,
-        y - 111,
-        78,
-        27,
+        (center - 39.0 * scale + body_shift) as i32,
+        (y - 111.0 * scale) as i32,
+        (78.0 * scale) as i32,
+        (27.0 * scale) as i32,
         Color::new(
             240,
             57,
@@ -122,10 +244,10 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center - 27 + body_shift,
-        y - 122,
-        54,
-        35,
+        (center - 27.0 * scale + body_shift) as i32,
+        (y - 122.0 * scale) as i32,
+        (54.0 * scale) as i32,
+        (35.0 * scale) as i32,
         Color::new(
             35,
             38,
@@ -135,9 +257,9 @@ pub fn draw_kart(
     );
 
     draw.draw_circle(
-        center + body_shift,
-        y - 136,
-        24.0,
+        (center + body_shift) as i32,
+        (y - 136.0 * scale) as i32,
+        24.0 * scale,
         Color::new(
             245,
             185,
@@ -147,34 +269,34 @@ pub fn draw_kart(
     );
 
     draw.draw_rectangle(
-        center - 22 + body_shift,
-        y - 153,
-        44,
-        18,
+        (center - 22.0 * scale + body_shift) as i32,
+        (y - 153.0 * scale) as i32,
+        (44.0 * scale) as i32,
+        (18.0 * scale) as i32,
         Color::RED,
     );
 
     draw.draw_rectangle(
-        center - 14 + body_shift,
-        y - 138,
-        28,
-        7,
+        (center - 14.0 * scale + body_shift) as i32,
+        (y - 138.0 * scale) as i32,
+        (28.0 * scale) as i32,
+        (7.0 * scale) as i32,
         Color::SKYBLUE,
     );
 
     draw.draw_rectangle(
-        center - 19,
-        y - 43,
-        38,
-        16,
+        (center - 19.0 * scale) as i32,
+        (y - 43.0 * scale) as i32,
+        (38.0 * scale) as i32,
+        (16.0 * scale) as i32,
         Color::RAYWHITE,
     );
 
     draw.draw_text(
         "RUST",
-        center - 16,
-        y - 42,
-        12,
+        (center - 16.0 * scale) as i32,
+        (y - 42.0 * scale) as i32,
+        (12.0 * scale) as i32,
         Color::BLACK,
     );
 }

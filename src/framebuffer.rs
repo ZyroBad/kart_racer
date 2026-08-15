@@ -102,6 +102,8 @@ impl Framebuffer {
             height,
             player.velocity,
             player.steering,
+            player.drift,
+            race.race_time(),
         );
 
         self.draw_race_hud(
@@ -122,8 +124,8 @@ impl Framebuffer {
         draw.draw_rectangle(
             18,
             18,
-            270,
-            92,
+            300,
+            200,
             Color::new(
                 15,
                 18,
@@ -152,17 +154,85 @@ impl Framebuffer {
                     race.checkpoint_count(),
                 ),
                 30,
-                64,
-                19,
+                62,
+                18,
                 Color::YELLOW,
             );
         }
+
+        draw.draw_text(
+            &format!(
+                "VUELTA: {}",
+                format_time(
+                    race.lap_time()
+                ),
+            ),
+            30,
+            92,
+            18,
+            Color::RAYWHITE,
+        );
+
+        draw.draw_text(
+            &format!(
+                "TOTAL: {}",
+                format_time(
+                    race.race_time()
+                ),
+            ),
+            30,
+            120,
+            18,
+            Color::LIGHTGRAY,
+        );
+
+        let best_text =
+            match race.best_lap_time() {
+                Some(time) =>
+                    format!(
+                        "MEJOR: {}",
+                        format_time(time)
+                    ),
+
+                None =>
+                    "MEJOR: --:--.---"
+                        .to_string(),
+            };
+
+        draw.draw_text(
+            &best_text,
+            30,
+            148,
+            18,
+            Color::GREEN,
+        );
+
+        if let Some(time) =
+            race.last_lap_time()
+        {
+            draw.draw_text(
+                &format!(
+                    "ULTIMA: {}",
+                    format_time(time)
+                ),
+                30,
+                176,
+                16,
+                Color::ORANGE,
+            );
+        }
+
+        draw.draw_fps(
+            width - 100,
+            height - 32,
+        );
 
         if race.finished() {
             self.draw_finish_screen(
                 draw,
                 width,
                 height,
+                race,
             );
         }
     }
@@ -172,6 +242,7 @@ impl Framebuffer {
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
+        race: &Race,
     ) {
         draw.draw_rectangle(
             0,
@@ -182,7 +253,7 @@ impl Framebuffer {
                 0,
                 0,
                 0,
-                170,
+                175,
             ),
         );
 
@@ -204,32 +275,122 @@ impl Framebuffer {
                 width
                 - title_width
             ) / 2,
-            height / 2 - 65,
+            height / 2 - 105,
             title_size,
             Color::YELLOW,
         );
 
-        let subtitle =
-            "3 vueltas completadas";
+        let total =
+            format!(
+                "TIEMPO TOTAL: {}",
+                format_time(
+                    race.race_time()
+                )
+            );
 
-        let subtitle_size =
-            26;
+        let total_size =
+            28;
 
-        let subtitle_width =
+        let total_width =
             draw.measure_text(
-                subtitle,
-                subtitle_size,
+                &total,
+                total_size,
             );
 
         draw.draw_text(
-            subtitle,
+            &total,
             (
                 width
-                - subtitle_width
+                - total_width
             ) / 2,
-            height / 2 + 5,
-            subtitle_size,
+            height / 2 - 25,
+            total_size,
+            Color::RAYWHITE,
+        );
+
+        let best =
+            match race.best_lap_time() {
+                Some(time) =>
+                    format!(
+                        "MEJOR VUELTA: {}",
+                        format_time(time)
+                    ),
+
+                None =>
+                    "MEJOR VUELTA: --:--.---"
+                        .to_string(),
+            };
+
+        let best_size =
+            24;
+
+        let best_width =
+            draw.measure_text(
+                &best,
+                best_size,
+            );
+
+        draw.draw_text(
+            &best,
+            (
+                width
+                - best_width
+            ) / 2,
+            height / 2 + 25,
+            best_size,
+            Color::GREEN,
+        );
+
+        let restart =
+            "ENTER / R PARA JUGAR DE NUEVO";
+
+        let restart_size =
+            20;
+
+        let restart_width =
+            draw.measure_text(
+                restart,
+                restart_size,
+            );
+
+        draw.draw_text(
+            restart,
+            (
+                width
+                - restart_width
+            ) / 2,
+            height / 2 + 78,
+            restart_size,
             Color::RAYWHITE,
         );
     }
+}
+
+fn format_time(
+    seconds: f32,
+) -> String {
+    let total_millis =
+        (seconds * 1000.0)
+            as u64;
+
+    let minutes =
+        total_millis
+        / 60_000;
+
+    let seconds =
+        (
+            total_millis
+            / 1000
+        ) % 60;
+
+    let millis =
+        total_millis
+        % 1000;
+
+    format!(
+        "{:02}:{:02}.{:03}",
+        minutes,
+        seconds,
+        millis,
+    )
 }
