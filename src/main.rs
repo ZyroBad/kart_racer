@@ -17,6 +17,7 @@ const WINDOW_HEIGHT: i32 = 720;
 
 const FOV: f32 = PI / 3.0;
 const NUMBER_OF_RAYS: usize = 300;
+const KART_COLOR_COUNT: usize = 5;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum GameState {
@@ -29,16 +30,16 @@ enum GameState {
 
 const MAP: [&str; 41] = [
     "#################################################################",
-    "#..................G.....G.....G.....G.....G....................#",
-    "#..................G.....G.....G.....G.....G....................#",
-    "#...............................................................#",
+    "#..................G...........G...........G....................#",
+    "#...............................G...............................#",
+    "#..............G.................................G..............#",
     "#...KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
     "#...KPPPPPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPPPPOPPPPPPPPPPPRPPPRPPPPPPPPPPPOPPPPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPBPPLLLPPPLLCPPPLLLPPPLLCPPPLLLPPPLBPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
     "#...KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
-    "#...KPPPPPPPK.......................................KPPPPPPPK...#",
+    "#...KPPYPPPPK.......................................KPPPPYPPK...#",
     "#...KPPPPPPPK.......................................KPPPPPPPK...#",
     "#...KPPPLPPPK....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH....KPPPLPPPK...#",
     "#...KPPPLPPPK....H.............................H....KPPPLPPPK...#",
@@ -55,18 +56,18 @@ const MAP: [&str; 41] = [
     "#...KPPPLPPPK....H....F...................F....H....KPPPLPPPK...#",
     "#...KPPPLPPPK....H..T...T...............T...T..H....KPPPLPPPK...#",
     "#...KPPPLPPPK....H.............................H....KPPPLPPPK...#",
-    "#...KPPPPPPPK....H.............................H....KPPPPPPPK...#",
+    "#...KPPYPPPPK....H.............................H....KPPPPYPPK...#",
     "#...KPPPPPPPK....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH....KPPPPPPPK...#",
     "#...KPPPPPPPK.......................................KPPPPPPPK...#",
     "#...KPPPPPPPK.......................................KPPPPPPPK...#",
-    "#...KKKKKKKKKKKKKKMMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
+    "#...KKKKKKKKKKKKKKMMMMNKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
     "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPBPPMMMMMPPPCPPPPPPPPPPPCPPPPPPPPPPBPPKPPPPPPPK...#",
-    "#...KPPPPPPPKPPPPPMMMMMPLLLPPPRLLPRPLLLPPPLLLPOPLLPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPMMMNMPLLLPPPRLLPRPLLLPPPLLLPOPLLPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
     "#...KKKKKKKKKKKKKKMMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
-    "#...............................................................#",
-    "#..................G.....G.....G.....G.....G....................#",
+    "#..............G.................................G..............#",
+    "#..................G...........G...........G....................#",
     "#...............................................................#",
     "#################################################################"
 ];
@@ -89,6 +90,9 @@ fn main() {
     let mut countdown_timer =
         0.0_f32;
 
+    let mut selected_kart_color =
+        0_usize;
+
     let framebuffer =
         Framebuffer::new();
 
@@ -108,6 +112,37 @@ fn main() {
 
         match game_state {
             GameState::Start => {
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_RIGHT
+                )
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_D
+                    )
+                {
+                    selected_kart_color =
+                        (
+                            selected_kart_color
+                            + 1
+                        )
+                        % KART_COLOR_COUNT;
+                }
+
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_LEFT
+                )
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_A
+                    )
+                {
+                    selected_kart_color =
+                        (
+                            selected_kart_color
+                            + KART_COLOR_COUNT
+                            - 1
+                        )
+                        % KART_COLOR_COUNT;
+                }
+
                 if rl.is_key_pressed(
                     KeyboardKey::KEY_ENTER
                 )
@@ -245,6 +280,13 @@ fn main() {
             FOV,
             NUMBER_OF_RAYS,
             game_state == GameState::Start,
+            kart_color(
+                selected_kart_color
+            ),
+            kart_color_name(
+                selected_kart_color
+            ),
+            "Circuito Rust",
             if game_state == GameState::Countdown {
                 Some(countdown_timer)
             } else {
@@ -252,5 +294,63 @@ fn main() {
             },
             game_state == GameState::Paused,
         );
+    }
+}
+
+fn kart_color(
+    index: usize,
+) -> Color {
+    match index % KART_COLOR_COUNT {
+        0 =>
+            Color::new(
+                220,
+                43,
+                42,
+                255,
+            ),
+
+        1 =>
+            Color::new(
+                42,
+                118,
+                235,
+                255,
+            ),
+
+        2 =>
+            Color::new(
+                45,
+                185,
+                85,
+                255,
+            ),
+
+        3 =>
+            Color::new(
+                245,
+                195,
+                45,
+                255,
+            ),
+
+        _ =>
+            Color::new(
+                190,
+                75,
+                220,
+                255,
+            ),
+    }
+}
+
+fn kart_color_name(
+    index: usize,
+) -> &'static str {
+    match index % KART_COLOR_COUNT {
+        0 => "Rojo",
+        1 => "Azul",
+        2 => "Verde",
+        3 => "Amarillo",
+        _ => "Morado",
     }
 }

@@ -8,6 +8,7 @@ pub fn draw_kart(
     steering: f32,
     drift: f32,
     boost_flash: f32,
+    kart_color: Color,
     time: f32,
 ) {
     let scale =
@@ -251,11 +252,9 @@ pub fn draw_kart(
         (y - 42.0 * scale) as i32,
         (134.0 * scale) as i32,
         (24.0 * scale) as i32,
-        Color::new(
-            180,
-            35,
-            35,
-            255,
+        shade_color(
+            kart_color,
+            0.74,
         ),
     );
 
@@ -264,12 +263,7 @@ pub fn draw_kart(
         (y - 90.0 * scale) as i32,
         (110.0 * scale) as i32,
         (50.0 * scale) as i32,
-        Color::new(
-            220,
-            43,
-            42,
-            255,
-        ),
+        kart_color,
     );
 
     draw.draw_rectangle(
@@ -277,11 +271,9 @@ pub fn draw_kart(
         (y - 111.0 * scale) as i32,
         (78.0 * scale) as i32,
         (27.0 * scale) as i32,
-        Color::new(
-            240,
-            57,
-            49,
-            255,
+        shade_color(
+            kart_color,
+            1.14,
         ),
     );
 
@@ -315,7 +307,10 @@ pub fn draw_kart(
         (y - 153.0 * scale) as i32,
         (44.0 * scale) as i32,
         (18.0 * scale) as i32,
-        Color::RED,
+        shade_color(
+            kart_color,
+            0.92,
+        ),
     );
 
     draw.draw_rectangle(
@@ -341,4 +336,37 @@ pub fn draw_kart(
         (12.0 * scale) as i32,
         Color::BLACK,
     );
+}
+
+fn shade_color(
+    color: Color,
+    factor: f32,
+) -> Color {
+    Color::new(
+        (
+            color.r as f32
+            * factor
+        )
+        .clamp(
+            0.0,
+            255.0,
+        ) as u8,
+        (
+            color.g as f32
+            * factor
+        )
+        .clamp(
+            0.0,
+            255.0,
+        ) as u8,
+        (
+            color.b as f32
+            * factor
+        )
+        .clamp(
+            0.0,
+            255.0,
+        ) as u8,
+        color.a,
+    )
 }

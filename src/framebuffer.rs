@@ -27,6 +27,9 @@ impl Framebuffer {
         fov: f32,
         number_of_rays: usize,
         show_start_screen: bool,
+        kart_color: Color,
+        kart_color_name: &str,
+        track_name: &str,
         countdown_timer: Option<f32>,
         show_pause_screen: bool,
     ) {
@@ -114,6 +117,7 @@ impl Framebuffer {
             player.steering,
             player.drift,
             player.boost_flash,
+            kart_color,
             race.race_time(),
         );
 
@@ -148,6 +152,9 @@ impl Framebuffer {
                 draw,
                 width,
                 height,
+                kart_color,
+                kart_color_name,
+                track_name,
             );
         }
 
@@ -761,6 +768,9 @@ impl Framebuffer {
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
+        kart_color: Color,
+        kart_color_name: &str,
+        track_name: &str,
     ) {
         draw.draw_rectangle(
             0,
@@ -822,7 +832,7 @@ impl Framebuffer {
         );
 
         let controls =
-            "W/S acelerar/frenar   A/D girar   Mouse camara   Space derrape";
+            "A/D o flechas cambian color   ENTER inicia";
 
         let controls_size =
             18;
@@ -844,6 +854,74 @@ impl Framebuffer {
             Color::LIGHTGRAY,
         );
 
+        let color_text =
+            format!(
+                "< COLOR: {} >",
+                kart_color_name
+            );
+
+        let color_size =
+            24;
+
+        let color_width =
+            draw.measure_text(
+                &color_text,
+                color_size,
+            );
+
+        draw.draw_text(
+            &color_text,
+            (
+                width
+                - color_width
+            ) / 2,
+            height / 2 + 45,
+            color_size,
+            Color::RAYWHITE,
+        );
+
+        draw.draw_rectangle(
+            width / 2 - 32,
+            height / 2 + 80,
+            64,
+            24,
+            kart_color,
+        );
+
+        draw.draw_rectangle_lines(
+            width / 2 - 32,
+            height / 2 + 80,
+            64,
+            24,
+            Color::RAYWHITE,
+        );
+
+        let track_text =
+            format!(
+                "PISTA 1/1: {}",
+                track_name
+            );
+
+        let track_size =
+            20;
+
+        let track_width =
+            draw.measure_text(
+                &track_text,
+                track_size,
+            );
+
+        draw.draw_text(
+            &track_text,
+            (
+                width
+                - track_width
+            ) / 2,
+            height / 2 + 118,
+            track_size,
+            Color::YELLOW,
+        );
+
         let start =
             "ENTER / SPACE PARA EMPEZAR";
 
@@ -862,7 +940,7 @@ impl Framebuffer {
                 width
                 - start_width
             ) / 2,
-            height / 2 + 78,
+            height / 2 + 160,
             start_size,
             Color::GREEN,
         );

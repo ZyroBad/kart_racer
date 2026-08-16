@@ -91,7 +91,15 @@ pub fn draw_scenery(
         {
             if matches!(
                 *tile,
-                'T' | 'F' | 'O' | 'C' | 'B' | 'A' | 'G'
+                'T'
+                | 'F'
+                | 'O'
+                | 'C'
+                | 'B'
+                | 'A'
+                | 'G'
+                | 'N'
+                | 'Y'
             ) {
                 objects.push(
                     Scenery {
@@ -573,6 +581,34 @@ fn draw_object(
             );
         }
 
+        'N' => {
+            let size =
+                (650.0 / corrected_distance)
+                .clamp(44.0, 310.0);
+
+            draw_finish_arch(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
+        'Y' => {
+            let size =
+                (360.0 / corrected_distance)
+                .clamp(24.0, 170.0);
+
+            draw_turn_sign(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
         _ => {}
     }
 }
@@ -823,8 +859,8 @@ fn object_ground_y(
     distance: f32,
 ) -> f32 {
     height as f32 / 2.0
-        + (95.0 / distance.max(0.35))
-            .clamp(0.0, 175.0)
+        + (112.0 / distance.max(0.35))
+            .clamp(0.0, 190.0)
 }
 
 fn draw_cone(
@@ -842,6 +878,14 @@ fn draw_cone(
 
     let white =
         Color::new(245, 245, 235, 255);
+
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y + size * 0.05) as i32,
+        size * 0.34,
+        size * 0.08,
+        Color::new(20, 20, 20, 100),
+    );
 
     draw.draw_triangle(
         Vector2::new(x, ground_y - size),
@@ -888,6 +932,14 @@ fn draw_crate(
 
     let dark =
         Color::new(95, 58, 32, 255);
+
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y + size * 0.04) as i32,
+        size * 0.46,
+        size * 0.10,
+        Color::new(20, 20, 20, 95),
+    );
 
     draw.draw_rectangle(
         left as i32,
@@ -943,6 +995,14 @@ fn draw_barrier(
 
     let top =
         ground_y - size * 0.65;
+
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y + size * 0.05) as i32,
+        width * 0.42,
+        size * 0.09,
+        Color::new(20, 20, 20, 100),
+    );
 
     draw.draw_rectangle(
         left as i32,
@@ -1038,13 +1098,13 @@ fn draw_grandstand(
         object_ground_y(height, distance);
 
     let width =
-        size * 1.35;
+        size * 2.75;
 
     let left =
         x - width / 2.0;
 
     let top =
-        ground_y - size * 0.72;
+        ground_y - size * 1.12;
 
     let shade =
         (
@@ -1059,39 +1119,88 @@ fn draw_grandstand(
             1.0,
         );
 
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y + size * 0.04) as i32,
+        width * 0.42,
+        size * 0.12,
+        Color::new(
+            15,
+            15,
+            18,
+            110,
+        ),
+    );
+
+    let roof_overhang =
+        size * 0.18;
+
     draw.draw_rectangle(
-        left as i32,
+        (left - roof_overhang) as i32,
         top as i32,
-        width as i32,
-        (size * 0.55) as i32,
+        (width + roof_overhang * 2.0) as i32,
+        (size * 0.18) as i32,
         shade_color(
             Color::new(
-                42,
-                52,
-                72,
+                220,
+                35,
+                45,
                 255,
             ),
             shade,
         ),
     );
 
-    for row in 0..3 {
+    draw.draw_rectangle(
+        (left - roof_overhang * 0.55) as i32,
+        (top + size * 0.18) as i32,
+        (width + roof_overhang * 1.1) as i32,
+        (size * 0.055) as i32,
+        shade_color(
+            Color::new(
+                245,
+                235,
+                215,
+                255,
+            ),
+            shade,
+        ),
+    );
+
+    draw.draw_rectangle(
+        left as i32,
+        (top + size * 0.23) as i32,
+        width as i32,
+        (size * 0.68) as i32,
+        shade_color(
+            Color::new(
+                45,
+                55,
+                78,
+                255,
+            ),
+            shade,
+        ),
+    );
+
+    for row in 0..5 {
         let y =
             top
+            + size * 0.34
             + row as f32
                 * size
-                * 0.16;
+                * 0.105;
 
         draw.draw_rectangle(
             left as i32,
             y as i32,
             width as i32,
-            (size * 0.06) as i32,
+            (size * 0.052) as i32,
             shade_color(
                 Color::new(
-                    220,
-                    55,
-                    55,
+                    235,
+                    238,
+                    245,
                     255,
                 ),
                 shade,
@@ -1104,27 +1213,38 @@ fn draw_grandstand(
         Color::SKYBLUE,
         Color::RAYWHITE,
         Color::GREEN,
+        Color::ORANGE,
+        Color::RED,
     ];
 
-    for i in 0..8 {
+    for i in 0..36 {
+        let col =
+            (i % 12) as f32;
+
+        let row =
+            (i / 12) as f32;
+
         let seat_x =
             left
-            + width * 0.12
-            + i as f32
+            + width * 0.07
+            + col
                 * width
-                * 0.10;
+                * 0.078;
 
         let seat_y =
             top
-            + size * 0.22
-            + (i % 3) as f32
+            + size * 0.40
+            + row
                 * size
-                * 0.10;
+                * 0.13
+            + (i % 2) as f32
+                * size
+                * 0.035;
 
         draw.draw_circle(
             seat_x as i32,
             seat_y as i32,
-            (size * 0.035)
+            (size * 0.040)
                 .max(2.0),
             colors[
                 i % colors.len()
@@ -1132,11 +1252,75 @@ fn draw_grandstand(
         );
     }
 
+    for i in 0..5 {
+        let flag_x =
+            left
+            + width
+                * (0.10 + i as f32 * 0.20);
+
+        draw.draw_rectangle(
+            flag_x as i32,
+            (top - size * 0.18) as i32,
+            (size * 0.025) as i32,
+            (size * 0.22) as i32,
+            Color::new(
+                50,
+                50,
+                55,
+                255,
+            ),
+        );
+
+        draw.draw_triangle(
+            Vector2::new(
+                flag_x + size * 0.025,
+                top - size * 0.18,
+            ),
+            Vector2::new(
+                flag_x + size * 0.25,
+                top - size * 0.12,
+            ),
+            Vector2::new(
+                flag_x + size * 0.025,
+                top - size * 0.06,
+            ),
+            colors[
+                i % colors.len()
+            ],
+        );
+    }
+
+    let leg_color =
+        shade_color(
+            Color::new(
+                45,
+                45,
+                50,
+                255,
+            ),
+            shade,
+        );
+
+    for i in 0..4 {
+        let leg_x =
+            left
+            + width
+                * (0.12 + i as f32 * 0.25);
+
+        draw.draw_rectangle(
+            leg_x as i32,
+            (top + size * 0.91) as i32,
+            (size * 0.065) as i32,
+            (ground_y - top - size * 0.91) as i32,
+            leg_color,
+        );
+    }
+
     draw.draw_rectangle(
         left as i32,
-        (ground_y - size * 0.18) as i32,
+        (ground_y - size * 0.20) as i32,
         width as i32,
-        (size * 0.18) as i32,
+        (size * 0.20) as i32,
         shade_color(
             Color::new(
                 245,
@@ -1146,6 +1330,222 @@ fn draw_grandstand(
             ),
             shade,
         ),
+    );
+}
+
+fn draw_finish_arch(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let width =
+        size * 0.98;
+
+    let left =
+        x - width / 2.0;
+
+    let top =
+        ground_y - size * 1.15;
+
+    let post_width =
+        size * 0.10;
+
+    let banner_height =
+        size * 0.24;
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        width as i32,
+        banner_height as i32,
+        Color::new(
+            35,
+            38,
+            45,
+            255,
+        ),
+    );
+
+    let square =
+        width / 8.0;
+
+    for i in 0..8 {
+        draw.draw_rectangle(
+            (
+                left
+                + i as f32
+                    * square
+            ) as i32,
+            top as i32,
+            square as i32,
+            banner_height as i32,
+            if i % 2 == 0 {
+                Color::RAYWHITE
+            } else {
+                Color::BLACK
+            },
+        );
+    }
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        post_width as i32,
+        (size * 1.15) as i32,
+        Color::new(
+            235,
+            45,
+            45,
+            255,
+        ),
+    );
+
+    draw.draw_rectangle(
+        (
+            left
+            + width
+            - post_width
+        ) as i32,
+        top as i32,
+        post_width as i32,
+        (size * 1.15) as i32,
+        Color::new(
+            235,
+            45,
+            45,
+            255,
+        ),
+    );
+
+    let label =
+        "FINISH";
+
+    let font_size =
+        (size * 0.12)
+            .clamp(
+                12.0,
+                26.0,
+            ) as i32;
+
+    let label_width =
+        draw.measure_text(
+            label,
+            font_size,
+        );
+
+    draw.draw_text(
+        label,
+        (
+            x
+            - label_width as f32
+                / 2.0
+        ) as i32,
+        (
+            top
+            + banner_height
+            + size * 0.05
+        ) as i32,
+        font_size,
+        Color::YELLOW,
+    );
+}
+
+fn draw_turn_sign(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let sign_w =
+        size * 0.78;
+
+    let sign_h =
+        size * 0.46;
+
+    let left =
+        x - sign_w / 2.0;
+
+    let top =
+        ground_y - size * 0.88;
+
+    draw.draw_rectangle(
+        (
+            x
+            - size * 0.04
+        ) as i32,
+        (
+            top
+            + sign_h
+        ) as i32,
+        (size * 0.08) as i32,
+        (size * 0.42) as i32,
+        Color::new(
+            45,
+            45,
+            50,
+            255,
+        ),
+    );
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        sign_w as i32,
+        sign_h as i32,
+        Color::new(
+            245,
+            215,
+            55,
+            255,
+        ),
+    );
+
+    draw.draw_rectangle_lines(
+        left as i32,
+        top as i32,
+        sign_w as i32,
+        sign_h as i32,
+        Color::BLACK,
+    );
+
+    let arrow =
+        ">>";
+
+    let font_size =
+        (size * 0.25)
+            .clamp(
+                14.0,
+                34.0,
+            ) as i32;
+
+    let arrow_width =
+        draw.measure_text(
+            arrow,
+            font_size,
+        );
+
+    draw.draw_text(
+        arrow,
+        (
+            x
+            - arrow_width as f32
+                / 2.0
+        ) as i32,
+        (
+            top
+            + sign_h * 0.16
+        ) as i32,
+        font_size,
+        Color::BLACK,
     );
 }
 
