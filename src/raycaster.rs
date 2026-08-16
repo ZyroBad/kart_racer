@@ -395,9 +395,34 @@ fn floor_color(
     match map[map_y][map_x] {
         'P' =>
             Color::new(
-                184,
-                161,
-                120,
+                70,
+                72,
+                76,
+                255,
+            ),
+
+        'K' => {
+            if (
+                map_x
+                + map_y
+            ) % 2 == 0
+            {
+                Color::RAYWHITE
+            } else {
+                Color::new(
+                    220,
+                    40,
+                    38,
+                    255,
+                )
+            }
+        }
+
+        'L' =>
+            Color::new(
+                235,
+                220,
+                70,
                 255,
             ),
 
@@ -413,6 +438,28 @@ fn floor_color(
                     45,
                     45,
                     48,
+                    255,
+                )
+            }
+        }
+
+        'R' => {
+            if (
+                map_x
+                + map_y
+            ) % 2 == 0
+            {
+                Color::new(
+                    245,
+                    195,
+                    45,
+                    255,
+                )
+            } else {
+                Color::new(
+                    220,
+                    55,
+                    40,
                     255,
                 )
             }

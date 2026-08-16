@@ -7,6 +7,7 @@ pub fn draw_kart(
     velocity: f32,
     steering: f32,
     drift: f32,
+    boost_flash: f32,
     time: f32,
 ) {
     let scale =
@@ -53,6 +54,47 @@ pub fn draw_kart(
     let y =
         bottom
         - bounce;
+
+    if boost_flash > 0.01 {
+        let alpha =
+            (120.0 * boost_flash)
+                as u8;
+
+        for i in 0..5 {
+            let offset =
+                (
+                    i as f32
+                    - 2.0
+                )
+                * 42.0
+                * scale;
+
+            draw.draw_line(
+                (
+                    center
+                    + offset
+                ) as i32,
+                (
+                    y
+                    - 180.0 * scale
+                ) as i32,
+                (
+                    center
+                    + offset * 0.45
+                ) as i32,
+                (
+                    y
+                    - 40.0 * scale
+                ) as i32,
+                Color::new(
+                    255,
+                    220,
+                    60,
+                    alpha,
+                ),
+            );
+        }
+    }
 
     if drift > 0.18
         && velocity.abs() > 2.0

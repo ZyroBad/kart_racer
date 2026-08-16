@@ -18,46 +18,55 @@ const WINDOW_HEIGHT: i32 = 720;
 const FOV: f32 = PI / 3.0;
 const NUMBER_OF_RAYS: usize = 300;
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum GameState {
+    Start,
+    Countdown,
+    Racing,
+    Paused,
+    Finished,
+}
+
 const MAP: [&str; 41] = [
     "#################################################################",
+    "#..................G.....G.....G.....G.....G....................#",
+    "#..................G.....G.....G.....G.....G....................#",
     "#...............................................................#",
+    "#...KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
+    "#...KPPPPPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPOPPPPPPPPPPPRPPPRPPPPPPPPPPPOPPPPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPBPPLLLPPPLLCPPPLLLPPPLLCPPPLLLPPPLBPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
+    "#...KPPPPPPPK.......................................KPPPPPPPK...#",
+    "#...KPPPPPPPK.......................................KPPPPPPPK...#",
+    "#...KPPPLPPPK....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH....KPPPLPPPK...#",
+    "#...KPPPLPPPK....H.............................H....KPPPLPPPK...#",
+    "#...KPPPLPPPK....H.............................H....KPPPLPPPK...#",
+    "#...KPPPPPPPK....H..T...T...............T...T..H....KPPPPPPPK...#",
+    "#...KPPPPPPPK....H....F...................F....H....KPPPPPPPK...#",
+    "#...KPPPPPPPK....H.........SS.......SS.........H....KPPPPPPPK...#",
+    "#...KPPPLPPPK....H.........SSWWWWWWWSS.........H....KPPRRPPPK...#",
+    "#...KPPPLPPPK....H.........SSWWWWWWWSS.........H....KPPRRPPPK...#",
+    "#...KPPPRRPPK....H.........SSWWWWWWWSS.........H....KPPPLPPPK...#",
+    "#...KPPPRRPPK....H.........SSWWWWWWWSS.........H....KPPPPPPPK...#",
+    "#...KPPPPPPPK....H.........SSWWWWWWWSS.........H....KPPPPPPPK...#",
+    "#...KPPPPPPPK....H.........SS.......SS.........H....KPPPPPPPK...#",
+    "#...KPPPLPPPK....H....F...................F....H....KPPPLPPPK...#",
+    "#...KPPPLPPPK....H..T...T...............T...T..H....KPPPLPPPK...#",
+    "#...KPPPLPPPK....H.............................H....KPPPLPPPK...#",
+    "#...KPPPPPPPK....H.............................H....KPPPPPPPK...#",
+    "#...KPPPPPPPK....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH....KPPPPPPPK...#",
+    "#...KPPPPPPPK.......................................KPPPPPPPK...#",
+    "#...KPPPPPPPK.......................................KPPPPPPPK...#",
+    "#...MMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
+    "#...MMMMMPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...MMMMMPPPKPPBPPPPPPPPPPCPPPPPPPPPPPCPPPPPPPPPPBPPKPPPPPPPK...#",
+    "#...MMMMMPPPKPPPPPOLLPPPLLLPPPRLLPRPLLLPPPLLLPOPLLPPKPPPPPPPK...#",
+    "#...MMMMMPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...MMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
     "#...............................................................#",
-    "#...............................................................#",
-    "#...PPPPPPPPPPOOPPBBPPCCPPPPPPPPPPPPPPPCCPPBBPPOOPPPPPPPPPPPP...#",
-    "#...PPPPPPPPPPPPHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHPPPPPPPPPPPP...#",
-    "#...PPPPPPPPPPPPPPOPPPPPPPPOPPPBPPPPPPOPPPPPPPPOPPPPPPPPPPPPP...#",
-    "#...PPPPPPPPCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPCPPPPPPPP...#",
-    "#...PPPPPPPPPPPPHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHPPPPPPPPPPPP...#",
-    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
-    "#...PPPPPPP...HHHHHHH......T.........T......HHHHHHH...PPPPPPP...#",
-    "#...PPPPPPPPPPHPFFFPHPPPPP......A......PPPPPHPFFFPHPPPPPPPPPP...#",
-    "#...PPPPPPPPPPHPFFFPHPPPPP..PPPPPPPPP..PPPPPHPFFFPHPPPPPPPPPP...#",
-    "#...PPPPPPPPPPHPFFFPHPPPPPPPPPPPPPPPPPPPPPPPHPFFFPHPPPPPPPPPP...#",
-    "#...PPPOPPPPPPHHHHHHHPPPOPPPPPPPPPPPPPPPOPPPHHHHHHHPPPPPPOPPP...#",
-    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
-    "#...PPPPPPP............PPPPPPPPPPPPPPPPPPP............PPPPPPP...#",
-    "#...PPPPPPP.HHHHHHHHHH.PPPPPP.......PPPPPP.HHHHHHHHHH.PPPPPPP...#",
-    "#...PPPPPPP.H........HTPPPPPPSSSSSSSPPPPPPTH........H.PPPPPPP...#",
-    "#...PPPBPPP.H.FFFFFF.H.PPPPPPSWWWWWSPPPPPP.H.FFFFFF.H.PPPBPPP...#",
-    "#...PPPBPPP.H.FFFFFF.H.PPAPPPSWWWWWSPPPAPP.H.FFFFFF.H.PPPBPPP...#",
-    "#...PPPPPPP.H.FFFFFF.H.PPPPPPSWWWWWSPPPPPP.H.FFFFFF.H.PPPPPPP...#",
-    "#...PPPPPPP.H........HTPPPPPPSSSSSSSPPPPPPTH........H.PPPPPPP...#",
-    "#...PPPPPPP.HHHHHHHHHH.PPPPPP.......PPPPPP.HHHHHHHHHH.PPPPPPP...#",
-    "#...PPPPPPP............PPPPPPPPPPPPPPPPPPP............PPPPPPP...#",
-    "#...PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
-    "#...PPPPPPPPPPHHHHHHHPPPPPPPPPPPPPPPPPPPPPPPHHHHHHHPPPPPPPPPP...#",
-    "#...PPPOPPPPPPHPFFFPHPPPOPPPPPPPPPPPPPPPOPPPHPFFFPHPPPPPPOPPP...#",
-    "#...PPPPPPPPPPHPFFFPHPPPPP..PPPPPPPPP..PPPPPHPFFFPHPPPPPPPPPP...#",
-    "#...PPPPPPPPPPHPFFFPHPPPPP......A......PPPPPHPFFFPHPPPPPPPPPP...#",
-    "#...PPPPPPP...HHHHHHH......T.........T......HHHHHHH...PPPPPPP...#",
-    "#...PPPMPPPPPPPPPPOOPPBBPPCCPPPPPPPPPCCPPBBPPOOPPPPPPPPPPPPPP...#",
-    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
-    "#...PPPMPPPPCPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPCPPPPPPPP...#",
-    "#...PPPMPPPPPPPPPPOPPPPPPPPPOPPBBPPPPOPPPPPPPPPOPPPPPPPPPPPPP...#",
-    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
-    "#...PPPMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP...#",
-    "#...............................................................#",
-    "#...............................................................#",
+    "#..................G.....G.....G.....G.....G....................#",
     "#...............................................................#",
     "#################################################################"
 ];
@@ -73,6 +82,12 @@ fn main() {
 
     let mut race =
         Race::new();
+
+    let mut game_state =
+        GameState::Start;
+
+    let mut countdown_timer =
+        0.0_f32;
 
     let framebuffer =
         Framebuffer::new();
@@ -91,34 +106,120 @@ fn main() {
             rl.get_frame_time()
                 .min(0.05);
 
-        if race.finished()
-            && (
-                rl.is_key_pressed(
+        match game_state {
+            GameState::Start => {
+                if rl.is_key_pressed(
                     KeyboardKey::KEY_ENTER
                 )
-                || rl.is_key_pressed(
-                    KeyboardKey::KEY_R
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_SPACE
+                    )
+                {
+                    player =
+                        Player::new(6.0, 34.0);
+
+                    race =
+                        Race::new();
+
+                    countdown_timer =
+                        3.25;
+
+                    game_state =
+                        GameState::Countdown;
+                }
+            }
+
+            GameState::Countdown => {
+                countdown_timer -= dt;
+
+                if countdown_timer <= 0.0 {
+                    countdown_timer = 0.0;
+
+                    game_state =
+                        GameState::Racing;
+                }
+            }
+
+            GameState::Racing => {
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_P
+                ) {
+                    game_state =
+                        GameState::Paused;
+                } else {
+
+                    let mouse_delta =
+                        rl.get_mouse_delta();
+
+                    player.update(
+                        &rl,
+                        &map,
+                        dt,
+                        mouse_delta.x,
+                    );
+
+                    race.update(
+                        &player,
+                        dt,
+                    );
+
+                    if race.finished() {
+                        game_state =
+                            GameState::Finished;
+                    }
+                }
+            }
+
+            GameState::Paused => {
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_ENTER
                 )
-            )
-        {
-            player =
-                Player::new(6.0, 34.0);
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_R
+                    )
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_P
+                    )
+                {
+                    game_state =
+                        GameState::Racing;
+                }
+            }
 
-            race =
-                Race::new();
-        }
+            GameState::Finished => {
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_ENTER
+                )
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_R
+                    )
+                {
+                    player =
+                        Player::new(6.0, 34.0);
 
-        if !race.finished() {
-            player.update(
-                &rl,
-                &map,
-                dt,
-            );
+                    race =
+                        Race::new();
 
-            race.update(
-                &player,
-                dt,
-            );
+                    countdown_timer =
+                        3.25;
+
+                    game_state =
+                        GameState::Countdown;
+                }
+
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_BACKSPACE
+                ) {
+                    player =
+                        Player::new(6.0, 34.0);
+
+                    race =
+                        Race::new();
+
+                    game_state =
+                        GameState::Start;
+                }
+            }
         }
 
         // El tamaño real puede cambiar cuando
@@ -143,6 +244,13 @@ fn main() {
             &race,
             FOV,
             NUMBER_OF_RAYS,
+            game_state == GameState::Start,
+            if game_state == GameState::Countdown {
+                Some(countdown_timer)
+            } else {
+                None
+            },
+            game_state == GameState::Paused,
         );
     }
 }

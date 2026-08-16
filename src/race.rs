@@ -28,6 +28,9 @@ pub struct Race {
 
     // Mejor vuelta registrada.
     best_lap_time: Option<f32>,
+
+    event_text: Option<&'static str>,
+    event_timer: f32,
 }
 
 impl Race {
@@ -35,69 +38,74 @@ impl Race {
         Self {
             checkpoints: vec![
                 Checkpoint {
-                    x: 6.0,
+                    x: 9.0,
                     y: 34.0,
-                    radius: 1.8,
+                    radius: 1.2,
                 },
                 Checkpoint {
-                    x: 18.0,
+                    x: 20.0,
                     y: 34.0,
-                    radius: 2.3,
+                    radius: 3.0,
                 },
                 Checkpoint {
-                    x: 32.0,
+                    x: 34.0,
                     y: 34.0,
-                    radius: 2.3,
+                    radius: 3.0,
                 },
                 Checkpoint {
-                    x: 48.0,
+                    x: 49.0,
                     y: 34.0,
-                    radius: 2.3,
+                    radius: 3.0,
                 },
                 Checkpoint {
                     x: 57.0,
                     y: 31.0,
-                    radius: 2.3,
+                    radius: 3.2,
                 },
                 Checkpoint {
                     x: 57.0,
-                    y: 21.0,
-                    radius: 2.4,
+                    y: 22.0,
+                    radius: 3.2,
                 },
                 Checkpoint {
                     x: 57.0,
+                    y: 13.0,
+                    radius: 3.2,
+                },
+                Checkpoint {
+                    x: 52.0,
                     y: 7.0,
-                    radius: 2.4,
+                    radius: 3.2,
                 },
                 Checkpoint {
-                    x: 44.0,
-                    y: 6.0,
-                    radius: 2.3,
-                },
-                Checkpoint {
-                    x: 32.0,
-                    y: 6.0,
-                    radius: 2.5,
-                },
-                Checkpoint {
-                    x: 18.0,
+                    x: 39.0,
                     y: 7.0,
-                    radius: 2.3,
+                    radius: 3.0,
                 },
                 Checkpoint {
-                    x: 7.0,
-                    y: 10.0,
-                    radius: 2.4,
+                    x: 26.0,
+                    y: 7.0,
+                    radius: 3.0,
                 },
                 Checkpoint {
-                    x: 7.0,
-                    y: 21.0,
-                    radius: 2.4,
+                    x: 12.0,
+                    y: 7.0,
+                    radius: 3.0,
                 },
                 Checkpoint {
-                    x: 7.0,
-                    y: 30.0,
-                    radius: 2.4,
+                    x: 8.0,
+                    y: 14.0,
+                    radius: 3.2,
+                },
+                Checkpoint {
+                    x: 8.0,
+                    y: 24.0,
+                    radius: 3.2,
+                },
+                Checkpoint {
+                    x: 8.0,
+                    y: 31.0,
+                    radius: 3.0,
                 },
             ],
 
@@ -113,6 +121,9 @@ impl Race {
             lap_time: 0.0,
             last_lap_time: None,
             best_lap_time: None,
+
+            event_text: None,
+            event_timer: 0.0,
         }
     }
 
@@ -129,6 +140,19 @@ impl Race {
 
         self.race_time += dt;
         self.lap_time += dt;
+
+        if self.event_timer > 0.0 {
+            self.event_timer =
+                (
+                    self.event_timer
+                    - dt
+                )
+                .max(0.0);
+
+            if self.event_timer == 0.0 {
+                self.event_text = None;
+            }
+        }
 
         let checkpoint =
             self.checkpoints[
@@ -163,6 +187,11 @@ impl Race {
         if self.current_checkpoint
             < self.checkpoints.len()
         {
+            self.set_event(
+                "CHECKPOINT!",
+                0.75,
+            );
+
             return;
         }
 
@@ -195,9 +224,40 @@ impl Race {
             >= self.total_laps
         {
             self.finished = true;
+
+            self.set_event(
+                "FINISH!",
+                2.5,
+            );
         } else {
             self.current_lap += 1;
+
+            if self.current_lap
+                == self.total_laps
+            {
+                self.set_event(
+                    "ULTIMA VUELTA!",
+                    1.4,
+                );
+            } else {
+                self.set_event(
+                    "VUELTA COMPLETA!",
+                    1.2,
+                );
+            }
         }
+    }
+
+    fn set_event(
+        &mut self,
+        text: &'static str,
+        duration: f32,
+    ) {
+        self.event_text =
+            Some(text);
+
+        self.event_timer =
+            duration;
     }
 
     pub fn current_lap(
@@ -266,5 +326,17 @@ impl Race {
         &self,
     ) -> Option<f32> {
         self.best_lap_time
+    }
+
+    pub fn event_text(
+        &self,
+    ) -> Option<&'static str> {
+        self.event_text
+    }
+
+    pub fn event_timer(
+        &self,
+    ) -> f32 {
+        self.event_timer
     }
 }

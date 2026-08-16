@@ -91,7 +91,7 @@ pub fn draw_scenery(
         {
             if matches!(
                 *tile,
-                'T' | 'F' | 'O' | 'C' | 'B' | 'A'
+                'T' | 'F' | 'O' | 'C' | 'B' | 'A' | 'G'
             ) {
                 objects.push(
                     Scenery {
@@ -559,6 +559,20 @@ fn draw_object(
             );
         }
 
+        'G' => {
+            let size =
+                (520.0 / corrected_distance)
+                .clamp(34.0, 260.0);
+
+            draw_grandstand(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
         _ => {}
     }
 }
@@ -1010,6 +1024,128 @@ fn draw_statue(
         (ground_y - size * 0.82) as i32,
         size * 0.20,
         stone,
+    );
+}
+
+fn draw_grandstand(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance);
+
+    let width =
+        size * 1.35;
+
+    let left =
+        x - width / 2.0;
+
+    let top =
+        ground_y - size * 0.72;
+
+    let shade =
+        (
+            1.0
+            / (
+                1.0
+                + distance * 0.04
+            )
+        )
+        .clamp(
+            0.55,
+            1.0,
+        );
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        width as i32,
+        (size * 0.55) as i32,
+        shade_color(
+            Color::new(
+                42,
+                52,
+                72,
+                255,
+            ),
+            shade,
+        ),
+    );
+
+    for row in 0..3 {
+        let y =
+            top
+            + row as f32
+                * size
+                * 0.16;
+
+        draw.draw_rectangle(
+            left as i32,
+            y as i32,
+            width as i32,
+            (size * 0.06) as i32,
+            shade_color(
+                Color::new(
+                    220,
+                    55,
+                    55,
+                    255,
+                ),
+                shade,
+            ),
+        );
+    }
+
+    let colors = [
+        Color::YELLOW,
+        Color::SKYBLUE,
+        Color::RAYWHITE,
+        Color::GREEN,
+    ];
+
+    for i in 0..8 {
+        let seat_x =
+            left
+            + width * 0.12
+            + i as f32
+                * width
+                * 0.10;
+
+        let seat_y =
+            top
+            + size * 0.22
+            + (i % 3) as f32
+                * size
+                * 0.10;
+
+        draw.draw_circle(
+            seat_x as i32,
+            seat_y as i32,
+            (size * 0.035)
+                .max(2.0),
+            colors[
+                i % colors.len()
+            ],
+        );
+    }
+
+    draw.draw_rectangle(
+        left as i32,
+        (ground_y - size * 0.18) as i32,
+        width as i32,
+        (size * 0.18) as i32,
+        shade_color(
+            Color::new(
+                245,
+                245,
+                245,
+                255,
+            ),
+            shade,
+        ),
     );
 }
 
