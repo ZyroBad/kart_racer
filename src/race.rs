@@ -38,12 +38,12 @@ impl Race {
         Self {
             checkpoints: vec![
                 Checkpoint {
-                    x: 9.0,
+                    x: 20.0,
                     y: 34.0,
-                    radius: 1.2,
+                    radius: 1.5,
                 },
                 Checkpoint {
-                    x: 20.0,
+                    x: 29.0,
                     y: 34.0,
                     radius: 3.0,
                 },

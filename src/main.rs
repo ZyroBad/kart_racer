@@ -59,12 +59,12 @@ const MAP: [&str; 41] = [
     "#...KPPPPPPPK....HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH....KPPPPPPPK...#",
     "#...KPPPPPPPK.......................................KPPPPPPPK...#",
     "#...KPPPPPPPK.......................................KPPPPPPPK...#",
-    "#...MMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
-    "#...MMMMMPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
-    "#...MMMMMPPPKPPBPPPPPPPPPPCPPPPPPPPPPPCPPPPPPPPPPBPPKPPPPPPPK...#",
-    "#...MMMMMPPPKPPPPPOLLPPPLLLPPPRLLPRPLLLPPPLLLPOPLLPPKPPPPPPPK...#",
-    "#...MMMMMPPPKPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
-    "#...MMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
+    "#...KKKKKKKKKKKKKKMMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
+    "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPBPPMMMMMPPPCPPPPPPPPPPPCPPPPPPPPPPBPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPMMMMMPLLLPPPRLLPRPLLLPPPLLLPOPLLPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...KKKKKKKKKKKKKKMMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
     "#...............................................................#",
     "#..................G.....G.....G.....G.....G....................#",
     "#...............................................................#",
@@ -78,7 +78,7 @@ fn main() {
             .collect();
 
     let mut player =
-        Player::new(6.0, 34.0);
+        Player::new(15.0, 34.0);
 
     let mut race =
         Race::new();
@@ -116,7 +116,7 @@ fn main() {
                     )
                 {
                     player =
-                        Player::new(6.0, 34.0);
+                        Player::new(15.0, 34.0);
 
                     race =
                         Race::new();
@@ -195,7 +195,7 @@ fn main() {
                     )
                 {
                     player =
-                        Player::new(6.0, 34.0);
+                        Player::new(15.0, 34.0);
 
                     race =
                         Race::new();
@@ -211,7 +211,7 @@ fn main() {
                     KeyboardKey::KEY_BACKSPACE
                 ) {
                     player =
-                        Player::new(6.0, 34.0);
+                        Player::new(15.0, 34.0);
 
                     race =
                         Race::new();
