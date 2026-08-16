@@ -18,6 +18,12 @@ const WINDOW_HEIGHT: i32 = 720;
 const FOV: f32 = PI / 3.0;
 const NUMBER_OF_RAYS: usize = 300;
 const KART_COLOR_COUNT: usize = 5;
+const START_MENU_COUNT: usize = 4;
+
+const MENU_START: usize = 0;
+const MENU_COLOR: usize = 1;
+const MENU_CONTROLS: usize = 2;
+const MENU_EXIT: usize = 3;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum GameState {
@@ -93,6 +99,12 @@ fn main() {
     let mut selected_kart_color =
         0_usize;
 
+    let mut start_menu_option =
+        MENU_START;
+
+    let mut show_controls =
+        false;
+
     let framebuffer =
         Framebuffer::new();
 
@@ -105,7 +117,7 @@ fn main() {
 
     rl.set_target_fps(60);
 
-    while !rl.window_should_close() {
+    'game_loop: while !rl.window_should_close() {
         let dt =
             rl.get_frame_time()
                 .min(0.05);
@@ -113,18 +125,59 @@ fn main() {
         match game_state {
             GameState::Start => {
                 if rl.is_key_pressed(
+                    KeyboardKey::KEY_DOWN
+                )
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_S
+                    )
+                {
+                    start_menu_option =
+                        (
+                            start_menu_option
+                            + 1
+                        )
+                        % START_MENU_COUNT;
+
+                    show_controls =
+                        false;
+                }
+
+                if rl.is_key_pressed(
+                    KeyboardKey::KEY_UP
+                )
+                    || rl.is_key_pressed(
+                        KeyboardKey::KEY_W
+                    )
+                {
+                    start_menu_option =
+                        (
+                            start_menu_option
+                            + START_MENU_COUNT
+                            - 1
+                        )
+                        % START_MENU_COUNT;
+
+                    show_controls =
+                        false;
+                }
+
+                if rl.is_key_pressed(
                     KeyboardKey::KEY_RIGHT
                 )
                     || rl.is_key_pressed(
                         KeyboardKey::KEY_D
                     )
                 {
-                    selected_kart_color =
-                        (
-                            selected_kart_color
-                            + 1
-                        )
-                        % KART_COLOR_COUNT;
+                    if start_menu_option
+                        == MENU_COLOR
+                    {
+                        selected_kart_color =
+                            (
+                                selected_kart_color
+                                + 1
+                            )
+                            % KART_COLOR_COUNT;
+                    }
                 }
 
                 if rl.is_key_pressed(
@@ -134,13 +187,17 @@ fn main() {
                         KeyboardKey::KEY_A
                     )
                 {
-                    selected_kart_color =
-                        (
-                            selected_kart_color
-                            + KART_COLOR_COUNT
-                            - 1
-                        )
-                        % KART_COLOR_COUNT;
+                    if start_menu_option
+                        == MENU_COLOR
+                    {
+                        selected_kart_color =
+                            (
+                                selected_kart_color
+                                + KART_COLOR_COUNT
+                                - 1
+                            )
+                            % KART_COLOR_COUNT;
+                    }
                 }
 
                 if rl.is_key_pressed(
@@ -150,17 +207,44 @@ fn main() {
                         KeyboardKey::KEY_SPACE
                     )
                 {
-                    player =
-                        Player::new(15.0, 34.0);
+                    match start_menu_option {
+                        MENU_START => {
+                            player =
+                                Player::new(15.0, 34.0);
 
-                    race =
-                        Race::new();
+                            race =
+                                Race::new();
 
-                    countdown_timer =
-                        3.25;
+                            countdown_timer =
+                                3.25;
 
-                    game_state =
-                        GameState::Countdown;
+                            show_controls =
+                                false;
+
+                            game_state =
+                                GameState::Countdown;
+                        }
+
+                        MENU_COLOR => {
+                            selected_kart_color =
+                                (
+                                    selected_kart_color
+                                    + 1
+                                )
+                                % KART_COLOR_COUNT;
+                        }
+
+                        MENU_CONTROLS => {
+                            show_controls =
+                                !show_controls;
+                        }
+
+                        MENU_EXIT => {
+                            break 'game_loop;
+                        }
+
+                        _ => {}
+                    }
                 }
             }
 
@@ -293,6 +377,8 @@ fn main() {
                 None
             },
             game_state == GameState::Paused,
+            start_menu_option,
+            show_controls,
         );
     }
 }
