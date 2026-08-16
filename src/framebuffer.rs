@@ -207,12 +207,21 @@ impl Framebuffer {
         );
 
         if !race.finished() {
+            let objective =
+                if race.active_checkpoint_label()
+                    == "META"
+                {
+                    "META".to_string()
+                } else {
+                    format!(
+                        "CHECKPOINT {}/{}",
+                        race.current_checkpoint(),
+                        race.checkpoint_count() - 1,
+                    )
+                };
+
             draw.draw_text(
-                &format!(
-                    "CHECKPOINT {}/{}",
-                    race.current_checkpoint() + 1,
-                    race.checkpoint_count(),
-                ),
+                &objective,
                 30,
                 62,
                 18,
@@ -737,17 +746,21 @@ impl Framebuffer {
             ),
         );
 
+        let accent =
+            race.active_checkpoint_color();
+
         draw.draw_text(
             direction,
             center_x - 10,
             top + 5,
             30,
-            Color::YELLOW,
+            accent,
         );
 
         let text =
             format!(
-                "META: {:.0}m",
+                "{}: {:.0}m",
+                race.active_checkpoint_label(),
                 distance * 3.0
             );
 

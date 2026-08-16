@@ -304,6 +304,36 @@ impl Race {
         }
     }
 
+    pub fn active_checkpoint_label(
+        &self,
+    ) -> &'static str {
+        if self.current_checkpoint == 0 {
+            "META"
+        } else {
+            "CHECKPOINT"
+        }
+    }
+
+    pub fn active_checkpoint_color(
+        &self,
+    ) -> raylib::prelude::Color {
+        if self.current_checkpoint == 0 {
+            raylib::prelude::Color::new(
+                255,
+                80,
+                60,
+                255,
+            )
+        } else {
+            raylib::prelude::Color::new(
+                255,
+                230,
+                70,
+                255,
+            )
+        }
+    }
+
     pub fn race_time(
         &self,
     ) -> f32 {

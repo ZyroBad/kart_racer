@@ -294,12 +294,7 @@ pub fn draw_checkpoint(
         );
 
     let bright =
-        Color::new(
-            255,
-            230,
-            70,
-            255,
-        );
+        race.active_checkpoint_color();
 
     // Halo grande
     draw.draw_circle(
@@ -353,7 +348,7 @@ pub fn draw_checkpoint(
 
     // Etiqueta
     let label =
-        "CHECKPOINT";
+        race.active_checkpoint_label();
 
     let font_size =
         (size * 0.10)
@@ -1514,7 +1509,7 @@ fn draw_finish_arch(
         object_ground_y(height, distance);
 
     let width =
-        size * 0.98;
+        size * 1.28;
 
     let left =
         x - width / 2.0;
@@ -1523,7 +1518,7 @@ fn draw_finish_arch(
         ground_y - size * 1.15;
 
     let post_width =
-        size * 0.10;
+        size * 0.12;
 
     let banner_height =
         size * 0.24;
@@ -1534,9 +1529,9 @@ fn draw_finish_arch(
         width as i32,
         banner_height as i32,
         Color::new(
-            35,
-            38,
-            45,
+            24,
+            26,
+            32,
             255,
         ),
     );
@@ -1569,8 +1564,8 @@ fn draw_finish_arch(
         (size * 1.15) as i32,
         Color::new(
             235,
-            45,
-            45,
+            38,
+            38,
             255,
         ),
     );
@@ -1586,14 +1581,14 @@ fn draw_finish_arch(
         (size * 1.15) as i32,
         Color::new(
             235,
-            45,
-            45,
+            38,
+            38,
             255,
         ),
     );
 
     let label =
-        "FINISH";
+        "META";
 
     let font_size =
         (size * 0.12)

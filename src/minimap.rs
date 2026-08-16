@@ -145,7 +145,7 @@ pub fn draw_minimap(
             checkpoint_x as i32,
             checkpoint_y as i32,
             7.0,
-            Color::YELLOW,
+            race.active_checkpoint_color(),
         );
 
         // Centro
@@ -153,7 +153,7 @@ pub fn draw_minimap(
             checkpoint_x as i32,
             checkpoint_y as i32,
             3.0,
-            Color::YELLOW,
+            race.active_checkpoint_color(),
         );
 
         // Línea desde jugador al objetivo
@@ -163,9 +163,9 @@ pub fn draw_minimap(
             checkpoint_x as i32,
             checkpoint_y as i32,
             Color::new(
-                255,
-                230,
-                70,
+                race.active_checkpoint_color().r,
+                race.active_checkpoint_color().g,
+                race.active_checkpoint_color().b,
                 180,
             ),
         );
