@@ -40,7 +40,7 @@ impl Player {
             rotation_speed: 3.2,
             low_speed_rotation: 2.35,
 
-            radius: 0.22,
+            radius: 0.17,
         }
     }
 
@@ -336,7 +336,10 @@ impl Player {
             + self.angle.sin()
                 * movement;
 
-        let mut collision =
+        let mut blocked_x =
+            false;
+
+        let mut blocked_y =
             false;
 
         if !self.collides(
@@ -346,7 +349,7 @@ impl Player {
         ) {
             self.x = next_x;
         } else {
-            collision = true;
+            blocked_x = true;
         }
 
         if !self.collides(
@@ -356,18 +359,25 @@ impl Player {
         ) {
             self.y = next_y;
         } else {
-            collision = true;
+            blocked_y = true;
         }
 
-        if collision {
+        if blocked_x && blocked_y {
             self.velocity *=
-                0.45;
+                0.35;
+        } else if blocked_x || blocked_y {
+            self.velocity *=
+                0.82;
+        }
 
-            if self.velocity.abs()
+        if (
+            blocked_x
+            || blocked_y
+        )
+            && self.velocity.abs()
                 < 0.05
-            {
-                self.velocity = 0.0;
-            }
+        {
+            self.velocity = 0.0;
         }
     }
 
@@ -486,8 +496,8 @@ fn surface_speed_factor(
     match tile {
         'P' | 'M' | 'K' | 'L' => 1.0,
         'R' => 1.08,
-        'F' => 0.68,
-        '.' => 0.52,
+        'F' => 0.74,
+        '.' => 0.62,
         _ => 0.82,
     }
 }

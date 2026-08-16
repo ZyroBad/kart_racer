@@ -100,6 +100,7 @@ pub fn draw_scenery(
                 | 'G'
                 | 'N'
                 | 'Y'
+                | 'Q'
             ) {
                 objects.push(
                     Scenery {
@@ -464,8 +465,9 @@ fn draw_object(
         ]
         .corrected_distance;
 
-    if corrected_distance
-        > wall_distance + 0.18
+    if object.kind != 'Q'
+        && corrected_distance
+            > wall_distance + 0.18
     {
         return;
     }
@@ -601,6 +603,20 @@ fn draw_object(
                 .clamp(24.0, 170.0);
 
             draw_turn_sign(
+                draw,
+                height,
+                screen_x,
+                size,
+                corrected_distance,
+            );
+        }
+
+        'Q' => {
+            let size =
+                (760.0 / corrected_distance)
+                .clamp(58.0, 310.0);
+
+            draw_fountain(
                 draw,
                 height,
                 screen_x,
@@ -1084,6 +1100,160 @@ fn draw_statue(
         (ground_y - size * 0.82) as i32,
         size * 0.20,
         stone,
+    );
+}
+
+fn draw_fountain(
+    draw: &mut RaylibDrawHandle,
+    height: i32,
+    x: f32,
+    size: f32,
+    distance: f32,
+) {
+    let ground_y =
+        object_ground_y(height, distance)
+        - size * 0.18;
+
+    let shade =
+        (
+            1.0
+            / (
+                1.0
+                + distance * 0.045
+            )
+        )
+        .clamp(
+            0.58,
+            1.0,
+        );
+
+    let stone =
+        shade_color(
+            Color::new(
+                184,
+                190,
+                194,
+                255,
+            ),
+            shade,
+        );
+
+    let stone_dark =
+        shade_color(
+            Color::new(
+                112,
+                120,
+                126,
+                255,
+            ),
+            shade,
+        );
+
+    let water =
+        shade_color(
+            Color::new(
+                74,
+                188,
+                230,
+                255,
+            ),
+            shade,
+        );
+
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y + size * 0.07) as i32,
+        size * 0.78,
+        size * 0.18,
+        Color::new(
+            20,
+            25,
+            28,
+            105,
+        ),
+    );
+
+    draw.draw_ellipse(
+        x as i32,
+        ground_y as i32,
+        size * 0.72,
+        size * 0.18,
+        stone_dark,
+    );
+
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y - size * 0.06) as i32,
+        size * 0.62,
+        size * 0.14,
+        water,
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.14) as i32,
+        (ground_y - size * 0.55) as i32,
+        (size * 0.28) as i32,
+        (size * 0.48) as i32,
+        stone,
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.24) as i32,
+        (ground_y - size * 0.22) as i32,
+        (size * 0.48) as i32,
+        (size * 0.14) as i32,
+        stone_dark,
+    );
+
+    draw.draw_line_ex(
+        Vector2::new(
+            x,
+            ground_y - size * 0.78,
+        ),
+        Vector2::new(
+            x,
+            ground_y - size * 0.10,
+        ),
+        (size * 0.035).max(2.0),
+        water,
+    );
+
+    draw.draw_line_ex(
+        Vector2::new(
+            x - size * 0.24,
+            ground_y - size * 0.40,
+        ),
+        Vector2::new(
+            x - size * 0.44,
+            ground_y - size * 0.07,
+        ),
+        (size * 0.025).max(1.0),
+        water,
+    );
+
+    draw.draw_line_ex(
+        Vector2::new(
+            x + size * 0.24,
+            ground_y - size * 0.40,
+        ),
+        Vector2::new(
+            x + size * 0.44,
+            ground_y - size * 0.07,
+        ),
+        (size * 0.025).max(1.0),
+        water,
+    );
+
+    draw.draw_circle(
+        x as i32,
+        (ground_y - size * 0.82) as i32,
+        size * 0.055,
+        Color::new(
+            200,
+            244,
+            255,
+            255,
+        ),
     );
 }
 

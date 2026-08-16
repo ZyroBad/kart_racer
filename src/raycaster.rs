@@ -473,6 +473,14 @@ fn floor_color(
                 255,
             ),
 
+        'Q' =>
+            Color::new(
+                155,
+                195,
+                210,
+                255,
+            ),
+
         'F' =>
             Color::new(
                 73,
