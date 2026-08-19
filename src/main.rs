@@ -67,176 +67,101 @@ const MAP: [&str; 41] = [
     "#...KPPPPPPPK....O..............Y..............O....KPPPPPPPK...#",
     "#...KPPPPPPPK..B.................................B..KPPPPPPPK...#",
     "#...KKKKKKKKKKKKKKMMMMNKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
-    "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPMMMMMPRRRPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPBPPMMMMMPPPCPPPPPPPPPPPCPPPPPPPPPPBPPKPPPPPPPK...#",
     "#...KPPPPPPPKPPPPPMMMNMPLLLPPPRLLPRPLLLPPPLLLPOPLLPPKPPPPPPPK...#",
-    "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPPPPPPPPPKPPPPPPPK...#",
+    "#...KPPPPPPPKPPPPPMMMMMPPPPPPPPPPPPPPPPPPPPPRRRPPPPPKPPPPPPPK...#",
     "#...KKKKKKKKKKKKKKMMMMMKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK...#",
     "#..............G.................................G..............#",
     "#..................G...........G...........G....................#",
     "#...............................................................#",
-    "#################################################################"
+    "#################################################################",
 ];
 
 fn main() {
-    let map: Vec<Vec<char>> =
-        MAP.iter()
-            .map(|row| row.chars().collect())
-            .collect();
+    let map: Vec<Vec<char>> = MAP.iter().map(|row| row.chars().collect()).collect();
 
-    let mut player =
-        Player::new(15.0, 34.0);
+    let mut player = Player::new(15.0, 34.0);
 
-    let mut race =
-        Race::new();
+    let mut race = Race::new();
 
-    let mut game_state =
-        GameState::Start;
+    let mut game_state = GameState::Start;
 
-    let mut countdown_timer =
-        0.0_f32;
+    let mut countdown_timer = 0.0_f32;
 
-    let mut selected_kart_color =
-        0_usize;
+    let mut selected_kart_color = 0_usize;
 
-    let mut start_menu_option =
-        MENU_START;
+    let mut start_menu_option = MENU_START;
 
-    let mut show_controls =
-        false;
+    let mut show_controls = false;
 
-    let framebuffer =
-        Framebuffer::new();
+    let framebuffer = Framebuffer::new();
 
-    let (mut rl, thread) =
-        raylib::init()
-            .size(WINDOW_WIDTH, WINDOW_HEIGHT)
-            .title("Kart Racer - Checkpoints y Vueltas")
-            .resizable()
-            .build();
+    let (mut rl, thread) = raylib::init()
+        .size(WINDOW_WIDTH, WINDOW_HEIGHT)
+        .title("Kart Racer - Checkpoints y Vueltas")
+        .resizable()
+        .build();
 
     rl.set_target_fps(60);
 
     'game_loop: while !rl.window_should_close() {
-        let dt =
-            rl.get_frame_time()
-                .min(0.05);
+        let dt = rl.get_frame_time().min(0.05);
 
         match game_state {
             GameState::Start => {
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_DOWN
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_S
-                    )
+                if rl.is_key_pressed(KeyboardKey::KEY_DOWN) || rl.is_key_pressed(KeyboardKey::KEY_S)
                 {
-                    start_menu_option =
-                        (
-                            start_menu_option
-                            + 1
-                        )
-                        % START_MENU_COUNT;
+                    start_menu_option = (start_menu_option + 1) % START_MENU_COUNT;
 
-                    show_controls =
-                        false;
+                    show_controls = false;
                 }
 
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_UP
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_W
-                    )
-                {
+                if rl.is_key_pressed(KeyboardKey::KEY_UP) || rl.is_key_pressed(KeyboardKey::KEY_W) {
                     start_menu_option =
-                        (
-                            start_menu_option
-                            + START_MENU_COUNT
-                            - 1
-                        )
-                        % START_MENU_COUNT;
+                        (start_menu_option + START_MENU_COUNT - 1) % START_MENU_COUNT;
 
-                    show_controls =
-                        false;
+                    show_controls = false;
                 }
 
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_RIGHT
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_D
-                    )
+                if rl.is_key_pressed(KeyboardKey::KEY_RIGHT)
+                    || rl.is_key_pressed(KeyboardKey::KEY_D)
                 {
-                    if start_menu_option
-                        == MENU_COLOR
-                    {
-                        selected_kart_color =
-                            (
-                                selected_kart_color
-                                + 1
-                            )
-                            % KART_COLOR_COUNT;
+                    if start_menu_option == MENU_COLOR {
+                        selected_kart_color = (selected_kart_color + 1) % KART_COLOR_COUNT;
                     }
                 }
 
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_LEFT
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_A
-                    )
+                if rl.is_key_pressed(KeyboardKey::KEY_LEFT) || rl.is_key_pressed(KeyboardKey::KEY_A)
                 {
-                    if start_menu_option
-                        == MENU_COLOR
-                    {
+                    if start_menu_option == MENU_COLOR {
                         selected_kart_color =
-                            (
-                                selected_kart_color
-                                + KART_COLOR_COUNT
-                                - 1
-                            )
-                            % KART_COLOR_COUNT;
+                            (selected_kart_color + KART_COLOR_COUNT - 1) % KART_COLOR_COUNT;
                     }
                 }
 
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_ENTER
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_SPACE
-                    )
+                if rl.is_key_pressed(KeyboardKey::KEY_ENTER)
+                    || rl.is_key_pressed(KeyboardKey::KEY_SPACE)
                 {
                     match start_menu_option {
                         MENU_START => {
-                            player =
-                                Player::new(15.0, 34.0);
+                            player = Player::new(15.0, 34.0);
 
-                            race =
-                                Race::new();
+                            race = Race::new();
 
-                            countdown_timer =
-                                3.25;
+                            countdown_timer = 3.25;
 
-                            show_controls =
-                                false;
+                            show_controls = false;
 
-                            game_state =
-                                GameState::Countdown;
+                            game_state = GameState::Countdown;
                         }
 
                         MENU_COLOR => {
-                            selected_kart_color =
-                                (
-                                    selected_kart_color
-                                    + 1
-                                )
-                                % KART_COLOR_COUNT;
+                            selected_kart_color = (selected_kart_color + 1) % KART_COLOR_COUNT;
                         }
 
                         MENU_CONTROLS => {
-                            show_controls =
-                                !show_controls;
+                            show_controls = !show_controls;
                         }
 
                         MENU_EXIT => {
@@ -254,105 +179,65 @@ fn main() {
                 if countdown_timer <= 0.0 {
                     countdown_timer = 0.0;
 
-                    game_state =
-                        GameState::Racing;
+                    game_state = GameState::Racing;
                 }
             }
 
             GameState::Racing => {
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_P
-                ) {
-                    game_state =
-                        GameState::Paused;
+                if rl.is_key_pressed(KeyboardKey::KEY_P) {
+                    game_state = GameState::Paused;
                 } else {
+                    let mouse_delta = rl.get_mouse_delta();
 
-                    let mouse_delta =
-                        rl.get_mouse_delta();
+                    player.update(&rl, &map, dt, mouse_delta.x);
 
-                    player.update(
-                        &rl,
-                        &map,
-                        dt,
-                        mouse_delta.x,
-                    );
-
-                    race.update(
-                        &player,
-                        dt,
-                    );
+                    race.update(&player, dt);
 
                     if race.finished() {
-                        game_state =
-                            GameState::Finished;
+                        game_state = GameState::Finished;
                     }
                 }
             }
 
             GameState::Paused => {
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_ENTER
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_R
-                    )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_P
-                    )
+                if rl.is_key_pressed(KeyboardKey::KEY_ENTER)
+                    || rl.is_key_pressed(KeyboardKey::KEY_R)
+                    || rl.is_key_pressed(KeyboardKey::KEY_P)
                 {
-                    game_state =
-                        GameState::Racing;
+                    game_state = GameState::Racing;
                 }
             }
 
             GameState::Finished => {
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_ENTER
-                )
-                    || rl.is_key_pressed(
-                        KeyboardKey::KEY_R
-                    )
+                if rl.is_key_pressed(KeyboardKey::KEY_ENTER)
+                    || rl.is_key_pressed(KeyboardKey::KEY_R)
                 {
-                    player =
-                        Player::new(15.0, 34.0);
+                    player = Player::new(15.0, 34.0);
 
-                    race =
-                        Race::new();
+                    race = Race::new();
 
-                    countdown_timer =
-                        3.25;
+                    countdown_timer = 3.25;
 
-                    game_state =
-                        GameState::Countdown;
+                    game_state = GameState::Countdown;
                 }
 
-                if rl.is_key_pressed(
-                    KeyboardKey::KEY_BACKSPACE
-                ) {
-                    player =
-                        Player::new(15.0, 34.0);
+                if rl.is_key_pressed(KeyboardKey::KEY_BACKSPACE) {
+                    player = Player::new(15.0, 34.0);
 
-                    race =
-                        Race::new();
+                    race = Race::new();
 
-                    game_state =
-                        GameState::Start;
+                    game_state = GameState::Start;
                 }
             }
         }
 
         // El tamaño real puede cambiar cuando
         // la ventana se maximiza o se redimensiona.
-        let screen_width =
-            rl.get_screen_width();
+        let screen_width = rl.get_screen_width();
 
-        let screen_height =
-            rl.get_screen_height();
+        let screen_height = rl.get_screen_height();
 
-        let mut draw =
-            rl.begin_drawing(
-                &thread
-            );
+        let mut draw = rl.begin_drawing(&thread);
 
         framebuffer.render(
             &mut draw,
@@ -364,12 +249,8 @@ fn main() {
             FOV,
             NUMBER_OF_RAYS,
             game_state == GameState::Start,
-            kart_color(
-                selected_kart_color
-            ),
-            kart_color_name(
-                selected_kart_color
-            ),
+            kart_color(selected_kart_color),
+            kart_color_name(selected_kart_color),
             "Circuito Rust",
             if game_state == GameState::Countdown {
                 Some(countdown_timer)
@@ -383,55 +264,21 @@ fn main() {
     }
 }
 
-fn kart_color(
-    index: usize,
-) -> Color {
+fn kart_color(index: usize) -> Color {
     match index % KART_COLOR_COUNT {
-        0 =>
-            Color::new(
-                220,
-                43,
-                42,
-                255,
-            ),
+        0 => Color::new(220, 43, 42, 255),
 
-        1 =>
-            Color::new(
-                42,
-                118,
-                235,
-                255,
-            ),
+        1 => Color::new(42, 118, 235, 255),
 
-        2 =>
-            Color::new(
-                45,
-                185,
-                85,
-                255,
-            ),
+        2 => Color::new(45, 185, 85, 255),
 
-        3 =>
-            Color::new(
-                245,
-                195,
-                45,
-                255,
-            ),
+        3 => Color::new(245, 195, 45, 255),
 
-        _ =>
-            Color::new(
-                190,
-                75,
-                220,
-                255,
-            ),
+        _ => Color::new(190, 75, 220, 255),
     }
 }
 
-fn kart_color_name(
-    index: usize,
-) -> &'static str {
+fn kart_color_name(index: usize) -> &'static str {
     match index % KART_COLOR_COUNT {
         0 => "Rojo",
         1 => "Azul",

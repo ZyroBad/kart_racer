@@ -11,199 +11,108 @@ pub fn draw_kart(
     kart_color: Color,
     time: f32,
 ) {
-    let scale =
-        (
-            width as f32 / 1200.0
-        )
-        .min(
-            height as f32 / 720.0
-        )
-        .clamp(
-            1.08,
-            1.48,
-        );
+    let scale = (width as f32 / 1200.0)
+        .min(height as f32 / 720.0)
+        .clamp(1.08, 1.48);
 
-    let center_x =
-        width as f32 / 2.0;
+    let center_x = width as f32 / 2.0;
 
-    let bottom =
-        height as f32
-        - 20.0 * scale;
+    let bottom = height as f32 - 20.0 * scale;
 
-    let bounce =
-        (
-            velocity.abs()
-            * 1.8
-        )
-        .min(5.0)
-        * scale;
+    let bounce = (velocity.abs() * 1.8).min(5.0) * scale;
 
-    let turn_offset =
-        steering
-        * 28.0
-        * scale;
+    let turn_offset = steering * 28.0 * scale;
 
-    let body_shift =
-        steering
-        * 13.0
-        * scale;
+    let body_shift = steering * 13.0 * scale;
 
-    let center =
-        center_x
-        + turn_offset;
+    let center = center_x + turn_offset;
 
-    let y =
-        bottom
-        - bounce;
+    let y = bottom - bounce;
 
     if boost_flash > 0.01 {
-        let alpha =
-            (120.0 * boost_flash)
-                as u8;
+        let alpha = (150.0 * boost_flash) as u8;
 
-        for i in 0..5 {
-            let offset =
-                (
-                    i as f32
-                    - 2.0
-                )
-                * 42.0
-                * scale;
+        for i in 0..7 {
+            let offset = (i as f32 - 3.0) * 34.0 * scale;
 
             draw.draw_line(
-                (
-                    center
-                    + offset
-                ) as i32,
-                (
-                    y
-                    - 180.0 * scale
-                ) as i32,
-                (
-                    center
-                    + offset * 0.45
-                ) as i32,
-                (
-                    y
-                    - 40.0 * scale
-                ) as i32,
-                Color::new(
-                    255,
-                    220,
-                    60,
-                    alpha,
-                ),
+                (center + offset) as i32,
+                (y - 180.0 * scale) as i32,
+                (center + offset * 0.45) as i32,
+                (y - 40.0 * scale) as i32,
+                Color::new(255, 220, 60, alpha),
+            );
+        }
+
+        for i in 0..4 {
+            let flame_w = (18.0 + i as f32 * 6.0) * scale;
+
+            let flame_h = (46.0 - i as f32 * 5.0) * scale * boost_flash;
+
+            let flame_x = center + (i as f32 - 1.5) * 28.0 * scale;
+
+            draw.draw_triangle(
+                Vector2::new(flame_x, y - 25.0 * scale),
+                Vector2::new(flame_x - flame_w / 2.0, y + flame_h),
+                Vector2::new(flame_x + flame_w / 2.0, y + flame_h),
+                Color::new(255, 138, 35, (190.0 * boost_flash) as u8),
             );
         }
     }
 
-    if drift > 0.18
-        && velocity.abs() > 2.0
-    {
-        let side =
-            if steering >= 0.0 {
-                -1.0
-            } else {
-                1.0
-            };
+    if drift > 0.18 && velocity.abs() > 2.0 {
+        let side = if steering >= 0.0 { -1.0 } else { 1.0 };
 
-        for i in 0..4 {
-            let t =
-                i as f32;
+        for i in 0..7 {
+            let t = i as f32;
 
-            let wave =
-                (time * 16.0 + t)
-                    .sin()
-                    * 5.0
-                    * scale;
+            let wave = (time * 16.0 + t).sin() * 5.0 * scale;
 
-            let smoke_x =
-                center
-                + side
-                    * (
-                        68.0
-                        + t * 12.0
-                    )
-                    * scale
-                + wave;
+            let smoke_x = center + side * (68.0 + t * 10.0) * scale + wave;
 
-            let smoke_y =
-                y
-                - (
-                    18.0
-                    + t * 10.0
-                )
-                * scale;
+            let smoke_y = y - (18.0 + t * 8.0) * scale;
 
-            let alpha =
-                (90.0 * drift)
-                    as u8;
+            let alpha = (90.0 * drift) as u8;
 
             draw.draw_circle(
                 smoke_x as i32,
                 smoke_y as i32,
-                (
-                    9.0
-                    + t * 2.0
-                )
-                * scale,
-                Color::new(
-                    230,
-                    230,
-                    220,
-                    alpha,
-                ),
+                (9.0 + t * 1.7) * scale,
+                Color::new(230, 230, 220, alpha),
             );
         }
 
-        let mark_color =
-            Color::new(
-                20,
-                20,
-                20,
-                (120.0 * drift)
-                    as u8,
-            );
+        let mark_color = Color::new(20, 20, 20, (150.0 * drift) as u8);
 
         draw.draw_line(
-            (
-                center
-                - 64.0 * scale
-            ) as i32,
-            (
-                y
-                - 4.0 * scale
-            ) as i32,
-            (
-                center
-                - 118.0 * scale
-                - steering * 24.0 * scale
-            ) as i32,
-            (
-                y
-                + 18.0 * scale
-            ) as i32,
+            (center - 64.0 * scale) as i32,
+            (y - 4.0 * scale) as i32,
+            (center - 118.0 * scale - steering * 24.0 * scale) as i32,
+            (y + 18.0 * scale) as i32,
             mark_color,
         );
 
         draw.draw_line(
-            (
-                center
-                + 64.0 * scale
-            ) as i32,
-            (
-                y
-                - 4.0 * scale
-            ) as i32,
-            (
-                center
-                + 118.0 * scale
-                - steering * 24.0 * scale
-            ) as i32,
-            (
-                y
-                + 18.0 * scale
-            ) as i32,
+            (center + 64.0 * scale) as i32,
+            (y - 4.0 * scale) as i32,
+            (center + 118.0 * scale - steering * 24.0 * scale) as i32,
+            (y + 18.0 * scale) as i32,
+            mark_color,
+        );
+
+        draw.draw_line(
+            (center - 82.0 * scale) as i32,
+            (y + 12.0 * scale) as i32,
+            (center - 150.0 * scale - steering * 36.0 * scale) as i32,
+            (y + 38.0 * scale) as i32,
+            mark_color,
+        );
+
+        draw.draw_line(
+            (center + 82.0 * scale) as i32,
+            (y + 12.0 * scale) as i32,
+            (center + 150.0 * scale - steering * 36.0 * scale) as i32,
+            (y + 38.0 * scale) as i32,
             mark_color,
         );
     }
@@ -213,12 +122,7 @@ pub fn draw_kart(
         (y - 8.0 * scale) as i32,
         85.0 * scale,
         18.0 * scale,
-        Color::new(
-            20,
-            20,
-            20,
-            150,
-        ),
+        Color::new(20, 20, 20, 150),
     );
 
     draw.draw_rectangle(
@@ -226,12 +130,7 @@ pub fn draw_kart(
         (y - 69.0 * scale) as i32,
         (28.0 * scale) as i32,
         (55.0 * scale) as i32,
-        Color::new(
-            24,
-            25,
-            28,
-            255,
-        ),
+        Color::new(24, 25, 28, 255),
     );
 
     draw.draw_rectangle(
@@ -239,12 +138,7 @@ pub fn draw_kart(
         (y - 69.0 * scale) as i32,
         (28.0 * scale) as i32,
         (55.0 * scale) as i32,
-        Color::new(
-            24,
-            25,
-            28,
-            255,
-        ),
+        Color::new(24, 25, 28, 255),
     );
 
     draw.draw_rectangle(
@@ -252,10 +146,7 @@ pub fn draw_kart(
         (y - 42.0 * scale) as i32,
         (134.0 * scale) as i32,
         (24.0 * scale) as i32,
-        shade_color(
-            kart_color,
-            0.74,
-        ),
+        shade_color(kart_color, 0.74),
     );
 
     draw.draw_rectangle(
@@ -271,10 +162,7 @@ pub fn draw_kart(
         (y - 111.0 * scale) as i32,
         (78.0 * scale) as i32,
         (27.0 * scale) as i32,
-        shade_color(
-            kart_color,
-            1.14,
-        ),
+        shade_color(kart_color, 1.14),
     );
 
     draw.draw_rectangle(
@@ -282,24 +170,14 @@ pub fn draw_kart(
         (y - 122.0 * scale) as i32,
         (54.0 * scale) as i32,
         (35.0 * scale) as i32,
-        Color::new(
-            35,
-            38,
-            44,
-            255,
-        ),
+        Color::new(35, 38, 44, 255),
     );
 
     draw.draw_circle(
         (center + body_shift) as i32,
         (y - 136.0 * scale) as i32,
         24.0 * scale,
-        Color::new(
-            245,
-            185,
-            72,
-            255,
-        ),
+        Color::new(245, 185, 72, 255),
     );
 
     draw.draw_rectangle(
@@ -307,10 +185,7 @@ pub fn draw_kart(
         (y - 153.0 * scale) as i32,
         (44.0 * scale) as i32,
         (18.0 * scale) as i32,
-        shade_color(
-            kart_color,
-            0.92,
-        ),
+        shade_color(kart_color, 0.92),
     );
 
     draw.draw_rectangle(
@@ -338,35 +213,11 @@ pub fn draw_kart(
     );
 }
 
-fn shade_color(
-    color: Color,
-    factor: f32,
-) -> Color {
+fn shade_color(color: Color, factor: f32) -> Color {
     Color::new(
-        (
-            color.r as f32
-            * factor
-        )
-        .clamp(
-            0.0,
-            255.0,
-        ) as u8,
-        (
-            color.g as f32
-            * factor
-        )
-        .clamp(
-            0.0,
-            255.0,
-        ) as u8,
-        (
-            color.b as f32
-            * factor
-        )
-        .clamp(
-            0.0,
-            255.0,
-        ) as u8,
+        (color.r as f32 * factor).clamp(0.0, 255.0) as u8,
+        (color.g as f32 * factor).clamp(0.0, 255.0) as u8,
+        (color.b as f32 * factor).clamp(0.0, 255.0) as u8,
         color.a,
     )
 }

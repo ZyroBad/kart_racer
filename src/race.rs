@@ -36,78 +36,7 @@ pub struct Race {
 impl Race {
     pub fn new() -> Self {
         Self {
-            checkpoints: vec![
-                Checkpoint {
-                    x: 20.0,
-                    y: 34.0,
-                    radius: 1.5,
-                },
-                Checkpoint {
-                    x: 29.0,
-                    y: 34.0,
-                    radius: 3.0,
-                },
-                Checkpoint {
-                    x: 34.0,
-                    y: 34.0,
-                    radius: 3.0,
-                },
-                Checkpoint {
-                    x: 49.0,
-                    y: 34.0,
-                    radius: 3.0,
-                },
-                Checkpoint {
-                    x: 57.0,
-                    y: 31.0,
-                    radius: 3.2,
-                },
-                Checkpoint {
-                    x: 57.0,
-                    y: 22.0,
-                    radius: 3.2,
-                },
-                Checkpoint {
-                    x: 57.0,
-                    y: 13.0,
-                    radius: 3.2,
-                },
-                Checkpoint {
-                    x: 52.0,
-                    y: 7.0,
-                    radius: 3.2,
-                },
-                Checkpoint {
-                    x: 39.0,
-                    y: 7.0,
-                    radius: 3.0,
-                },
-                Checkpoint {
-                    x: 26.0,
-                    y: 7.0,
-                    radius: 3.0,
-                },
-                Checkpoint {
-                    x: 12.0,
-                    y: 7.0,
-                    radius: 3.0,
-                },
-                Checkpoint {
-                    x: 8.0,
-                    y: 14.0,
-                    radius: 3.2,
-                },
-                Checkpoint {
-                    x: 8.0,
-                    y: 24.0,
-                    radius: 3.2,
-                },
-                Checkpoint {
-                    x: 8.0,
-                    y: 31.0,
-                    radius: 3.0,
-                },
-            ],
+            checkpoints: checkpoints(),
 
             current_checkpoint: 0,
 
@@ -127,14 +56,89 @@ impl Race {
         }
     }
 
-    pub fn update(
-        &mut self,
-        player: &Player,
-        dt: f32,
-    ) {
-        if self.finished
-            || self.checkpoints.is_empty()
-        {
+    pub fn current_lap(&self) -> usize {
+        self.current_lap
+    }
+}
+
+fn checkpoints() -> Vec<Checkpoint> {
+    vec![
+        Checkpoint {
+            x: 29.0,
+            y: 34.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 34.0,
+            y: 34.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 49.0,
+            y: 34.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 57.0,
+            y: 31.0,
+            radius: 3.2,
+        },
+        Checkpoint {
+            x: 57.0,
+            y: 22.0,
+            radius: 3.2,
+        },
+        Checkpoint {
+            x: 57.0,
+            y: 13.0,
+            radius: 3.2,
+        },
+        Checkpoint {
+            x: 52.0,
+            y: 7.0,
+            radius: 3.2,
+        },
+        Checkpoint {
+            x: 39.0,
+            y: 7.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 26.0,
+            y: 7.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 12.0,
+            y: 7.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 8.0,
+            y: 14.0,
+            radius: 3.2,
+        },
+        Checkpoint {
+            x: 8.0,
+            y: 24.0,
+            radius: 3.2,
+        },
+        Checkpoint {
+            x: 8.0,
+            y: 31.0,
+            radius: 3.0,
+        },
+        Checkpoint {
+            x: 20.5,
+            y: 34.0,
+            radius: 2.15,
+        },
+    ]
+}
+
+impl Race {
+    pub fn update(&mut self, player: &Player, dt: f32) {
+        if self.finished || self.checkpoints.is_empty() {
             return;
         }
 
@@ -142,35 +146,20 @@ impl Race {
         self.lap_time += dt;
 
         if self.event_timer > 0.0 {
-            self.event_timer =
-                (
-                    self.event_timer
-                    - dt
-                )
-                .max(0.0);
+            self.event_timer = (self.event_timer - dt).max(0.0);
 
             if self.event_timer == 0.0 {
                 self.event_text = None;
             }
         }
 
-        let checkpoint =
-            self.checkpoints[
-                self.current_checkpoint
-            ];
+        let checkpoint = self.checkpoints[self.current_checkpoint];
 
-        let dx =
-            player.x
-            - checkpoint.x;
+        let dx = player.x - checkpoint.x;
 
-        let dy =
-            player.y
-            - checkpoint.y;
+        let dy = player.y - checkpoint.y;
 
-        let inside =
-            dx * dx + dy * dy
-            <= checkpoint.radius
-                * checkpoint.radius;
+        let inside = dx * dx + dy * dy <= checkpoint.radius * checkpoint.radius;
 
         if inside && !self.was_inside {
             self.advance_checkpoint();
@@ -179,18 +168,11 @@ impl Race {
         self.was_inside = inside;
     }
 
-    fn advance_checkpoint(
-        &mut self,
-    ) {
+    fn advance_checkpoint(&mut self) {
         self.current_checkpoint += 1;
 
-        if self.current_checkpoint
-            < self.checkpoints.len()
-        {
-            self.set_event(
-                "CHECKPOINT!",
-                0.75,
-            );
+        if self.current_checkpoint < self.checkpoints.len() {
+            self.set_event("CHECKPOINT!", 0.75);
 
             return;
         }
@@ -198,175 +180,106 @@ impl Race {
         // Terminó una vuelta.
         self.current_checkpoint = 0;
 
-        let completed_lap_time =
-            self.lap_time;
+        let completed_lap_time = self.lap_time;
 
-        self.last_lap_time =
-            Some(completed_lap_time);
+        self.last_lap_time = Some(completed_lap_time);
 
         match self.best_lap_time {
             Some(best) => {
                 if completed_lap_time < best {
-                    self.best_lap_time =
-                        Some(completed_lap_time);
+                    self.best_lap_time = Some(completed_lap_time);
                 }
             }
 
             None => {
-                self.best_lap_time =
-                    Some(completed_lap_time);
+                self.best_lap_time = Some(completed_lap_time);
             }
         }
 
         self.lap_time = 0.0;
 
-        if self.current_lap
-            >= self.total_laps
-        {
+        if self.current_lap >= self.total_laps {
             self.finished = true;
 
-            self.set_event(
-                "FINISH!",
-                2.5,
-            );
+            self.set_event("FINISH!", 2.5);
         } else {
             self.current_lap += 1;
 
-            if self.current_lap
-                == self.total_laps
-            {
-                self.set_event(
-                    "ULTIMA VUELTA!",
-                    1.4,
-                );
+            if self.current_lap == self.total_laps {
+                self.set_event("ULTIMA VUELTA!", 1.4);
             } else {
-                self.set_event(
-                    "VUELTA COMPLETA!",
-                    1.2,
-                );
+                self.set_event("VUELTA COMPLETA!", 1.2);
             }
         }
     }
 
-    fn set_event(
-        &mut self,
-        text: &'static str,
-        duration: f32,
-    ) {
-        self.event_text =
-            Some(text);
+    fn set_event(&mut self, text: &'static str, duration: f32) {
+        self.event_text = Some(text);
 
-        self.event_timer =
-            duration;
+        self.event_timer = duration;
     }
 
-    pub fn current_lap(
-        &self,
-    ) -> usize {
-        self.current_lap
-    }
-
-    pub fn total_laps(
-        &self,
-    ) -> usize {
+    pub fn total_laps(&self) -> usize {
         self.total_laps
     }
 
-    pub fn current_checkpoint(
-        &self,
-    ) -> usize {
+    pub fn current_checkpoint(&self) -> usize {
         self.current_checkpoint
     }
 
-    pub fn checkpoint_count(
-        &self,
-    ) -> usize {
+    pub fn checkpoint_count(&self) -> usize {
         self.checkpoints.len()
     }
 
-    pub fn finished(
-        &self,
-    ) -> bool {
+    pub fn finished(&self) -> bool {
         self.finished
     }
 
-    pub fn active_checkpoint(
-        &self,
-    ) -> Option<Checkpoint> {
+    pub fn active_checkpoint(&self) -> Option<Checkpoint> {
         if self.finished {
             None
         } else {
-            self.checkpoints
-                .get(
-                    self.current_checkpoint
-                )
-                .copied()
+            self.checkpoints.get(self.current_checkpoint).copied()
         }
     }
 
-    pub fn active_checkpoint_label(
-        &self,
-    ) -> &'static str {
-        if self.current_checkpoint == 0 {
+    pub fn active_checkpoint_label(&self) -> &'static str {
+        if self.current_checkpoint + 1 == self.checkpoints.len() {
             "META"
         } else {
             "CHECKPOINT"
         }
     }
 
-    pub fn active_checkpoint_color(
-        &self,
-    ) -> raylib::prelude::Color {
-        if self.current_checkpoint == 0 {
-            raylib::prelude::Color::new(
-                255,
-                80,
-                60,
-                255,
-            )
+    pub fn active_checkpoint_color(&self) -> raylib::prelude::Color {
+        if self.current_checkpoint + 1 == self.checkpoints.len() {
+            raylib::prelude::Color::new(255, 80, 60, 255)
         } else {
-            raylib::prelude::Color::new(
-                255,
-                230,
-                70,
-                255,
-            )
+            raylib::prelude::Color::new(255, 230, 70, 255)
         }
     }
 
-    pub fn race_time(
-        &self,
-    ) -> f32 {
+    pub fn race_time(&self) -> f32 {
         self.race_time
     }
 
-    pub fn lap_time(
-        &self,
-    ) -> f32 {
+    pub fn lap_time(&self) -> f32 {
         self.lap_time
     }
 
-    pub fn last_lap_time(
-        &self,
-    ) -> Option<f32> {
+    pub fn last_lap_time(&self) -> Option<f32> {
         self.last_lap_time
     }
 
-    pub fn best_lap_time(
-        &self,
-    ) -> Option<f32> {
+    pub fn best_lap_time(&self) -> Option<f32> {
         self.best_lap_time
     }
 
-    pub fn event_text(
-        &self,
-    ) -> Option<&'static str> {
+    pub fn event_text(&self) -> Option<&'static str> {
         self.event_text
     }
 
-    pub fn event_timer(
-        &self,
-    ) -> f32 {
+    pub fn event_timer(&self) -> f32 {
         self.event_timer
     }
 }
