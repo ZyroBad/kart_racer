@@ -77,4 +77,4 @@ cargo run
 
 El juego busca musica en `assets/audio/music/besame_mucho.wav`, `besame_mucho.ogg` y `vuelve.ogg`, y efectos en `assets/audio/sfx/engine.wav`, `boost.wav` y `checkpoint.wav`.
 
-No se incluyen grabaciones comerciales en el repositorio. Si se usan canciones como versiones de Luis Miguel, deben agregarse archivos con permiso o licencia valida.
+No se incluyen nuevas grabaciones comerciales descargadas por el proyecto. Si se usan canciones comerciales, deben agregarse con permiso o licencia valida.
