@@ -42,7 +42,7 @@ cargo run
 - Vehiculos seleccionables: kart y moto.
 - Decoracion de pista: gradas, edificios con ventanas, luces urbanas, semaforos, rotulos, senales, conos, barreras y fuente central.
 - Guia de direccion hacia el siguiente checkpoint para evitar perderse en pistas grandes.
-- Soporte de audio opcional para musica y efectos desde `assets/audio`.
+- Soporte de audio para musica y efectos desde `assets/audio`.
 
 ## Criterios cubiertos
 
@@ -68,13 +68,8 @@ cargo run
 - Confirmar que los efectos de motor, boost y checkpoint suenan durante carrera.
 - Grabar video mostrando menu, seleccion de pista, seleccion de vehiculo, carrera, minimap, FPS, pausa, audio y pantalla final.
 
-## Pendiente opcional
-
-- Convertir `besame_mucho.wav` a `.ogg` para reducir el peso del repositorio.
-- Ajustar volumenes finales segun se escuche en el video de entrega.
-
 ## Audio
 
-El juego busca musica en `assets/audio/music/besame_mucho.wav`, `besame_mucho.ogg` y `vuelve.ogg`, y efectos en `assets/audio/sfx/engine.wav`, `boost.wav` y `checkpoint.wav`.
+El juego busca musica en `assets/audio/music/besame_mucho.wav`, y efectos en `assets/audio/sfx/engine.wav`, `boost.wav` y `checkpoint.wav`.
 
 No se incluyen nuevas grabaciones comerciales descargadas por el proyecto. Si se usan canciones comerciales, deben agregarse con permiso o licencia valida.

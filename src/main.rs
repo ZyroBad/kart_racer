@@ -39,11 +39,7 @@ const PAUSE_MUSIC: usize = 1;
 const PAUSE_SFX: usize = 2;
 const PAUSE_BACK_TO_MENU: usize = 3;
 
-const MUSIC_FILES: [&str; 3] = [
-    "assets/audio/music/besame_mucho.wav",
-    "assets/audio/music/besame_mucho.ogg",
-    "assets/audio/music/vuelve.ogg",
-];
+const MUSIC_FILES: [&str; 1] = ["assets/audio/music/besame_mucho.wav"];
 const ENGINE_SOUND_FILE: &str = "assets/audio/sfx/engine.wav";
 const BOOST_SOUND_FILE: &str = "assets/audio/sfx/boost.wav";
 const CHECKPOINT_SOUND_FILE: &str = "assets/audio/sfx/checkpoint.wav";
