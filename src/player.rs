@@ -31,15 +31,15 @@ impl Player {
             boost_flash: 0.0,
             boost_timer: 0.0,
 
-            max_speed: 5.55,
-            reverse_speed: 2.45,
-            acceleration: 8.6,
-            friction: 4.75,
+            max_speed: 4.85,
+            reverse_speed: 2.05,
+            acceleration: 7.35,
+            friction: 5.15,
 
-            rotation_speed: 3.2,
-            low_speed_rotation: 2.35,
+            rotation_speed: 2.85,
+            low_speed_rotation: 2.15,
 
-            radius: 0.17,
+            radius: 0.14,
         }
     }
 
@@ -90,7 +90,7 @@ impl Player {
             }
         }
 
-        let boost_multiplier = if self.boost_timer > 0.0 { 1.15 } else { 1.0 };
+        let boost_multiplier = if self.boost_timer > 0.0 { 1.10 } else { 1.0 };
 
         let current_max_speed = self.max_speed * surface_factor * boost_multiplier;
 
@@ -103,7 +103,7 @@ impl Player {
         if current_tile == 'R' && self.velocity > 1.0 {
             self.boost_timer = 0.70;
 
-            self.velocity = (self.velocity + 8.2 * dt).min(self.max_speed * 1.14);
+            self.velocity = (self.velocity + 6.4 * dt).min(self.max_speed * 1.10);
 
             self.boost_flash = 1.0;
         }
@@ -138,9 +138,9 @@ impl Player {
             self.rotation_speed * (0.72 + speed_ratio * 0.28)
         };
 
-        if handbrake && speed > 1.4 {
-            turn_speed *= 1.42;
-            self.velocity *= (1.0 - 0.55 * dt).max(0.0);
+        if handbrake && speed > 1.25 {
+            turn_speed *= 1.34;
+            self.velocity *= (1.0 - 0.68 * dt).max(0.0);
         }
 
         let reverse_direction = if self.velocity < -0.05 { -1.0 } else { 1.0 };
@@ -193,9 +193,9 @@ impl Player {
         }
 
         if blocked_x && blocked_y {
-            self.velocity *= 0.35;
+            self.velocity *= 0.42;
         } else if blocked_x || blocked_y {
-            self.velocity *= 0.82;
+            self.velocity *= 0.90;
         }
 
         if (blocked_x || blocked_y) && self.velocity.abs() < 0.05 {
@@ -266,10 +266,10 @@ fn tile_at(map: &[Vec<char>], x: f32, y: f32) -> char {
 fn surface_speed_factor(tile: char) -> f32 {
     match tile {
         'P' | 'M' | 'K' | 'L' => 1.0,
-        'R' => 1.08,
-        'F' => 0.74,
-        'U' => 0.70,
-        '.' => 0.62,
-        _ => 0.82,
+        'R' => 1.04,
+        'F' => 0.70,
+        'U' => 0.76,
+        '.' => 0.58,
+        _ => 0.80,
     }
 }

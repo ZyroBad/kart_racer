@@ -120,9 +120,9 @@ fn checkpoints(track_index: usize) -> Vec<Checkpoint> {
                 radius: 3.0,
             },
             Checkpoint {
-                x: 20.5,
-                y: 34.0,
-                radius: 2.15,
+                x: 22.5,
+                y: 33.9,
+                radius: 1.15,
             },
         ],
 
@@ -193,9 +193,9 @@ fn checkpoints(track_index: usize) -> Vec<Checkpoint> {
                 radius: 3.0,
             },
             Checkpoint {
-                x: 20.5,
-                y: 34.0,
-                radius: 2.15,
+                x: 21.0,
+                y: 33.9,
+                radius: 1.15,
             },
         ],
     }
