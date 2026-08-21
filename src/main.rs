@@ -33,10 +33,11 @@ const MENU_EXIT: usize = 5;
 
 const TRACK_SELECT_TRACK: usize = 0;
 const TRACK_SELECT_VEHICLE: usize = 1;
-const PAUSE_MENU_COUNT: usize = 3;
+const PAUSE_MENU_COUNT: usize = 4;
 const PAUSE_CONTINUE: usize = 0;
 const PAUSE_MUSIC: usize = 1;
-const PAUSE_BACK_TO_MENU: usize = 2;
+const PAUSE_SFX: usize = 2;
+const PAUSE_BACK_TO_MENU: usize = 3;
 
 const MUSIC_FILES: [&str; 3] = [
     "assets/audio/music/besame_mucho.wav",
@@ -398,6 +399,10 @@ fn main() {
                             } else {
                                 stop_music(&music_tracks);
                             }
+                        }
+
+                        PAUSE_SFX => {
+                            sfx_enabled = !sfx_enabled;
                         }
 
                         PAUSE_BACK_TO_MENU => {

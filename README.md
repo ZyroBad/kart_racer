@@ -54,7 +54,7 @@ cargo run
 - Pantalla de bienvenida/menu principal.
 - Seleccion de multiples niveles.
 - Seleccion de vehiculo entre kart y moto.
-- Pantalla de pausa con opcion para continuar, volver al menu y controlar musica.
+- Pantalla de pausa con opcion para continuar, volver al menu y controlar musica/efectos.
 - Pantalla de exito al completar la carrera.
 - Paredes, suelos y objetos con colores distintos segun el tipo de tile.
 

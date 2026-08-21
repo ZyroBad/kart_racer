@@ -119,7 +119,14 @@ impl Framebuffer {
         }
 
         if show_pause_screen {
-            self.draw_pause_screen(draw, width, height, pause_menu_option, music_enabled);
+            self.draw_pause_screen(
+                draw,
+                width,
+                height,
+                pause_menu_option,
+                music_enabled,
+                sfx_enabled,
+            );
         }
     }
 
@@ -1441,6 +1448,7 @@ impl Framebuffer {
         height: i32,
         selected_option: usize,
         music_enabled: bool,
+        sfx_enabled: bool,
     ) {
         draw.draw_rectangle(0, 0, width, height, Color::new(0, 0, 0, 150));
 
@@ -1459,7 +1467,7 @@ impl Framebuffer {
         );
 
         let panel_w = 360;
-        let panel_h = 212;
+        let panel_h = 270;
         let panel_x = (width - panel_w) / 2;
         let panel_y = height / 2 - 10;
 
@@ -1480,7 +1488,13 @@ impl Framebuffer {
         draw.draw_rectangle_lines(panel_x, panel_y, panel_w, panel_h, Color::YELLOW);
 
         let music_label = format!("Musica: {}", if music_enabled { "ON" } else { "OFF" });
-        let options = ["Continuar", music_label.as_str(), "Volver al menu"];
+        let sfx_label = format!("Efectos: {}", if sfx_enabled { "ON" } else { "OFF" });
+        let options = [
+            "Continuar",
+            music_label.as_str(),
+            sfx_label.as_str(),
+            "Volver al menu",
+        ];
 
         for (index, option) in options.iter().enumerate() {
             let item_y = panel_y + 22 + index as i32 * 58;
@@ -1516,6 +1530,8 @@ impl Framebuffer {
                 if selected {
                     Color::YELLOW
                 } else if index == 1 && music_enabled {
+                    Color::YELLOW
+                } else if index == 2 && sfx_enabled {
                     Color::YELLOW
                 } else {
                     Color::RAYWHITE
