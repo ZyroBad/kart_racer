@@ -21,12 +21,15 @@ const NUMBER_OF_RAYS: usize = 300;
 const KART_COLOR_COUNT: usize = 5;
 const TRACK_COUNT: usize = 2;
 const VEHICLE_COUNT: usize = 2;
-const START_MENU_COUNT: usize = 3;
+const START_MENU_COUNT: usize = 6;
 const TRACK_SELECT_COUNT: usize = 2;
 
 const MENU_START: usize = 0;
-const MENU_CONTROLS: usize = 1;
-const MENU_EXIT: usize = 2;
+const MENU_COLOR: usize = 1;
+const MENU_MUSIC: usize = 2;
+const MENU_SFX: usize = 3;
+const MENU_CONTROLS: usize = 4;
+const MENU_EXIT: usize = 5;
 
 const TRACK_SELECT_TRACK: usize = 0;
 const TRACK_SELECT_VEHICLE: usize = 1;
@@ -111,7 +114,7 @@ fn main() {
 
     let mut countdown_timer = 0.0_f32;
 
-    let selected_kart_color = 0_usize;
+    let mut selected_kart_color = 0_usize;
 
     let mut selected_vehicle = 0_usize;
 
@@ -125,7 +128,7 @@ fn main() {
 
     let mut music_enabled = true;
 
-    let sfx_enabled = true;
+    let mut sfx_enabled = true;
 
     let framebuffer = Framebuffer::new();
 
@@ -178,10 +181,6 @@ fn main() {
         .resizable()
         .build();
 
-    let menu_background = rl
-        .load_texture(&thread, "assets/images/menu_background.png")
-        .ok();
-
     rl.set_target_fps(60);
 
     'game_loop: while !rl.window_should_close() {
@@ -203,6 +202,42 @@ fn main() {
                     show_controls = false;
                 }
 
+                if rl.is_key_pressed(KeyboardKey::KEY_RIGHT)
+                    || rl.is_key_pressed(KeyboardKey::KEY_D)
+                {
+                    if start_menu_option == MENU_COLOR {
+                        selected_kart_color = (selected_kart_color + 1) % KART_COLOR_COUNT;
+                    } else if start_menu_option == MENU_MUSIC {
+                        music_enabled = !music_enabled;
+
+                        if music_enabled {
+                            restart_music(&music_tracks, &mut current_music_track);
+                        } else {
+                            stop_music(&music_tracks);
+                        }
+                    } else if start_menu_option == MENU_SFX {
+                        sfx_enabled = !sfx_enabled;
+                    }
+                }
+
+                if rl.is_key_pressed(KeyboardKey::KEY_LEFT) || rl.is_key_pressed(KeyboardKey::KEY_A)
+                {
+                    if start_menu_option == MENU_COLOR {
+                        selected_kart_color =
+                            (selected_kart_color + KART_COLOR_COUNT - 1) % KART_COLOR_COUNT;
+                    } else if start_menu_option == MENU_MUSIC {
+                        music_enabled = !music_enabled;
+
+                        if music_enabled {
+                            restart_music(&music_tracks, &mut current_music_track);
+                        } else {
+                            stop_music(&music_tracks);
+                        }
+                    } else if start_menu_option == MENU_SFX {
+                        sfx_enabled = !sfx_enabled;
+                    }
+                }
+
                 if rl.is_key_pressed(KeyboardKey::KEY_ENTER)
                     || rl.is_key_pressed(KeyboardKey::KEY_SPACE)
                 {
@@ -211,6 +246,24 @@ fn main() {
                             show_controls = false;
 
                             game_state = GameState::TrackSelect;
+                        }
+
+                        MENU_COLOR => {
+                            selected_kart_color = (selected_kart_color + 1) % KART_COLOR_COUNT;
+                        }
+
+                        MENU_MUSIC => {
+                            music_enabled = !music_enabled;
+
+                            if music_enabled {
+                                restart_music(&music_tracks, &mut current_music_track);
+                            } else {
+                                stop_music(&music_tracks);
+                            }
+                        }
+
+                        MENU_SFX => {
+                            sfx_enabled = !sfx_enabled;
                         }
 
                         MENU_CONTROLS => {
@@ -416,7 +469,6 @@ fn main() {
             &race,
             FOV,
             NUMBER_OF_RAYS,
-            menu_background.as_ref(),
             game_state == GameState::Start,
             game_state == GameState::TrackSelect,
             kart_color(selected_kart_color),

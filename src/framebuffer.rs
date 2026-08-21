@@ -19,11 +19,10 @@ impl Framebuffer {
         race: &Race,
         fov: f32,
         number_of_rays: usize,
-        menu_background: Option<&Texture2D>,
         show_start_screen: bool,
         show_track_select_screen: bool,
         kart_color: Color,
-        _kart_color_name: &str,
+        kart_color_name: &str,
         track_name: &str,
         selected_track: usize,
         track_count: usize,
@@ -31,7 +30,7 @@ impl Framebuffer {
         vehicle_index: usize,
         vehicle_name: &str,
         music_enabled: bool,
-        _sfx_enabled: bool,
+        sfx_enabled: bool,
         countdown_timer: Option<f32>,
         show_pause_screen: bool,
         pause_menu_option: usize,
@@ -50,7 +49,10 @@ impl Framebuffer {
                 draw,
                 width,
                 height,
-                menu_background,
+                kart_color,
+                kart_color_name,
+                music_enabled,
+                sfx_enabled,
                 start_menu_option,
                 show_controls,
             );
@@ -485,44 +487,28 @@ impl Framebuffer {
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
-        menu_background: Option<&Texture2D>,
+        kart_color: Color,
+        kart_color_name: &str,
+        music_enabled: bool,
+        sfx_enabled: bool,
         selected_option: usize,
         show_controls: bool,
     ) {
-        if let Some(texture) = menu_background {
-            self.draw_menu_background_image(draw, width, height, texture);
-        } else {
-            self.draw_menu_scene(draw, width, height);
-        }
-
-        self.draw_menu_panel(draw, width, height, selected_option, show_controls);
-    }
-
-    fn draw_menu_background_image(
-        &self,
-        draw: &mut RaylibDrawHandle,
-        width: i32,
-        height: i32,
-        texture: &Texture2D,
-    ) {
-        let tex_w = texture.width() as f32;
-        let tex_h = texture.height() as f32;
-        let scale = (width as f32 / tex_w).max(height as f32 / tex_h);
-        let src_w = width as f32 / scale;
-        let src_h = height as f32 / scale;
-        let src_x = (tex_w - src_w) * 0.5;
-        let src_y = (tex_h - src_h) * 0.5;
-
-        draw.draw_texture_pro(
-            texture,
-            Rectangle::new(src_x, src_y, src_w, src_h),
-            Rectangle::new(0.0, 0.0, width as f32, height as f32),
-            Vector2::new(0.0, 0.0),
-            0.0,
-            Color::WHITE,
+        self.draw_menu_scene(draw, width, height);
+        self.draw_menu_title(draw, width, height);
+        self.draw_menu_panel(
+            draw,
+            width,
+            height,
+            kart_color,
+            kart_color_name,
+            music_enabled,
+            sfx_enabled,
+            selected_option,
+            show_controls,
         );
 
-        draw.draw_rectangle(0, 0, width, height, Color::new(0, 0, 0, 22));
+        self.draw_menu_kart_showcase(draw, width, height, kart_color);
     }
 
     fn draw_menu_scene(&self, draw: &mut RaylibDrawHandle, width: i32, height: i32) {
@@ -530,7 +516,13 @@ impl Framebuffer {
 
         let horizon = (height as f32 * 0.55) as i32;
 
-        draw.draw_rectangle(0, horizon - 50, width, 50, Color::new(22, 122, 48, 255));
+        draw.draw_circle(width - 115, 86, 38.0, Color::new(250, 220, 75, 255));
+
+        self.draw_menu_cloud(draw, width / 3, 86, 1.0);
+        self.draw_menu_cloud(draw, width * 2 / 3, 136, 0.72);
+        self.draw_menu_cloud(draw, width - 88, 146, 0.60);
+
+        draw.draw_rectangle(0, horizon - 66, width, 66, Color::new(22, 122, 48, 255));
 
         draw.draw_rectangle(0, horizon - 18, width, 26, Color::new(14, 86, 34, 255));
 
@@ -545,17 +537,302 @@ impl Framebuffer {
         let road_top_y = horizon;
 
         draw.draw_triangle(
-            Vector2::new((width / 2 + 45) as f32, road_top_y as f32),
-            Vector2::new((width / 2 + 185) as f32, road_top_y as f32),
-            Vector2::new((width / 2 + 310) as f32, height as f32),
+            Vector2::new((width / 2 + 18) as f32, road_top_y as f32),
+            Vector2::new((width / 2 + 188) as f32, road_top_y as f32),
+            Vector2::new((width / 2 + 330) as f32, height as f32),
             Color::new(187, 161, 115, 255),
         );
 
         draw.draw_triangle(
-            Vector2::new((width / 2 + 45) as f32, road_top_y as f32),
-            Vector2::new((width / 2 - 40) as f32, height as f32),
-            Vector2::new((width / 2 + 310) as f32, height as f32),
+            Vector2::new((width / 2 + 18) as f32, road_top_y as f32),
+            Vector2::new((width / 2 - 70) as f32, height as f32),
+            Vector2::new((width / 2 + 330) as f32, height as f32),
             Color::new(194, 171, 128, 255),
+        );
+
+        self.draw_menu_finish_banner(draw, width, horizon);
+        self.draw_menu_fountain(draw, width, horizon);
+        self.draw_menu_tree(draw, width - 155, horizon + 8, 1.18);
+        self.draw_menu_tree(draw, width - 320, horizon - 4, 0.82);
+        self.draw_menu_flowers(draw, width - 385, horizon + 98);
+        self.draw_menu_cone(draw, width / 2 + 292, horizon + 76, 1.0);
+        self.draw_menu_cone(draw, width / 2 + 372, horizon + 45, 0.74);
+        self.draw_menu_crate(draw, width / 2 + 210, horizon + 90, 1.0);
+    }
+
+    fn draw_menu_cloud(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32, scale: f32) {
+        let color = Color::new(238, 245, 250, 230);
+
+        draw.draw_circle(x, y, 24.0 * scale, color);
+        draw.draw_circle(
+            x + (26.0 * scale) as i32,
+            y + (4.0 * scale) as i32,
+            20.0 * scale,
+            color,
+        );
+        draw.draw_circle(
+            x - (25.0 * scale) as i32,
+            y + (7.0 * scale) as i32,
+            18.0 * scale,
+            color,
+        );
+        draw.draw_rectangle(
+            x - (42.0 * scale) as i32,
+            y + (8.0 * scale) as i32,
+            (88.0 * scale) as i32,
+            (16.0 * scale) as i32,
+            color,
+        );
+    }
+
+    fn draw_menu_finish_banner(&self, draw: &mut RaylibDrawHandle, width: i32, horizon: i32) {
+        let x = width / 2 + 30;
+        let y = horizon - 34;
+        let w = 210;
+        let h = 38;
+
+        draw.draw_rectangle(x, y, w, h, Color::RAYWHITE);
+
+        for i in 0..5 {
+            if i % 2 == 0 {
+                draw.draw_rectangle(x + i * w / 5, y, w / 5, h, Color::RED);
+            }
+        }
+
+        draw.draw_rectangle(x - 8, y + h, 10, 72, Color::new(35, 43, 45, 255));
+        draw.draw_rectangle(x + w - 2, y + h, 10, 72, Color::new(35, 43, 45, 255));
+    }
+
+    fn draw_menu_fountain(&self, draw: &mut RaylibDrawHandle, width: i32, horizon: i32) {
+        let x = width - 225;
+        let y = horizon + 108;
+
+        draw.draw_ellipse(x, y + 24, 96.0, 26.0, Color::new(220, 230, 230, 255));
+        draw.draw_ellipse(x, y + 20, 74.0, 18.0, Color::new(75, 190, 230, 255));
+        draw.draw_rectangle(x - 18, y - 46, 36, 62, Color::new(168, 178, 186, 255));
+        draw.draw_rectangle(x - 30, y - 18, 60, 18, Color::new(190, 196, 202, 255));
+
+        for offset in [-28, 0, 28] {
+            draw.draw_line(x, y - 48, x + offset, y + 10, Color::new(90, 210, 240, 210));
+        }
+    }
+
+    fn draw_menu_tree(&self, draw: &mut RaylibDrawHandle, x: i32, ground_y: i32, scale: f32) {
+        draw.draw_rectangle(
+            x - (10.0 * scale) as i32,
+            ground_y - (64.0 * scale) as i32,
+            (20.0 * scale) as i32,
+            (64.0 * scale) as i32,
+            Color::new(115, 72, 38, 255),
+        );
+
+        let radius = 34.0 * scale;
+        draw.draw_circle(
+            x - (24.0 * scale) as i32,
+            ground_y - (76.0 * scale) as i32,
+            radius,
+            Color::new(36, 118, 48, 255),
+        );
+        draw.draw_circle(
+            x + (24.0 * scale) as i32,
+            ground_y - (76.0 * scale) as i32,
+            radius,
+            Color::new(28, 100, 42, 255),
+        );
+        draw.draw_circle(
+            x,
+            ground_y - (106.0 * scale) as i32,
+            radius * 1.15,
+            Color::new(52, 150, 62, 255),
+        );
+    }
+
+    fn draw_menu_flowers(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32) {
+        let colors = [
+            Color::new(245, 215, 60, 255),
+            Color::new(245, 95, 150, 255),
+            Color::new(245, 245, 245, 255),
+            Color::new(110, 95, 225, 255),
+        ];
+
+        for i in 0..18 {
+            let fx = x + i * 18;
+            let fy = y + (i % 4) * 8;
+            draw.draw_line(fx, fy + 15, fx, fy, Color::new(35, 120, 50, 255));
+            draw.draw_circle(fx, fy, 5.0, colors[i as usize % colors.len()]);
+        }
+    }
+
+    fn draw_menu_cone(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32, scale: f32) {
+        let w = (22.0 * scale) as i32;
+        let h = (54.0 * scale) as i32;
+
+        draw.draw_triangle(
+            Vector2::new(x as f32, (y - h) as f32),
+            Vector2::new((x - w) as f32, y as f32),
+            Vector2::new((x + w) as f32, y as f32),
+            Color::new(245, 125, 25, 255),
+        );
+        draw.draw_rectangle(x - w / 2, y - h / 2, w, h / 7, Color::RAYWHITE);
+        draw.draw_rectangle(x - w - 4, y, w * 2 + 8, 7, Color::new(38, 40, 44, 255));
+    }
+
+    fn draw_menu_crate(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32, scale: f32) {
+        let size = (52.0 * scale) as i32;
+        let left = x - size / 2;
+        let top = y - size;
+        let wood = Color::new(155, 102, 55, 255);
+        let dark = Color::new(95, 58, 32, 255);
+
+        draw.draw_rectangle(left, top, size, size, wood);
+        draw.draw_rectangle_lines(left, top, size, size, dark);
+        draw.draw_line(left, top, left + size, top + size, dark);
+        draw.draw_line(left + size, top, left, top + size, dark);
+    }
+
+    fn draw_menu_kart_showcase(
+        &self,
+        draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
+        kart_color: Color,
+    ) {
+        let scale = (width as f32 / 1200.0)
+            .min(height as f32 / 720.0)
+            .clamp(0.92, 1.16);
+        let center = width / 2 + (260.0 * scale) as i32;
+        let base_y = (height as f32 * 0.90) as i32;
+        let sx = |value: f32| -> i32 { (value * scale) as i32 };
+
+        draw.draw_ellipse(
+            center,
+            base_y + sx(18.0),
+            142.0 * scale,
+            25.0 * scale,
+            Color::new(20, 20, 20, 125),
+        );
+
+        draw.draw_rectangle(
+            center - sx(132.0),
+            base_y - sx(72.0),
+            sx(38.0),
+            sx(88.0),
+            Color::new(22, 23, 26, 255),
+        );
+        draw.draw_rectangle(
+            center + sx(94.0),
+            base_y - sx(72.0),
+            sx(38.0),
+            sx(88.0),
+            Color::new(22, 23, 26, 255),
+        );
+
+        draw.draw_rectangle(
+            center - sx(112.0),
+            base_y - sx(30.0),
+            sx(224.0),
+            sx(34.0),
+            Color::new(
+                (kart_color.r as f32 * 0.72) as u8,
+                (kart_color.g as f32 * 0.72) as u8,
+                (kart_color.b as f32 * 0.72) as u8,
+                255,
+            ),
+        );
+
+        draw.draw_rectangle(
+            center - sx(88.0),
+            base_y - sx(108.0),
+            sx(176.0),
+            sx(82.0),
+            kart_color,
+        );
+        draw.draw_rectangle(
+            center - sx(62.0),
+            base_y - sx(140.0),
+            sx(124.0),
+            sx(42.0),
+            Color::new(
+                (kart_color.r as f32 * 1.10).clamp(0.0, 255.0) as u8,
+                (kart_color.g as f32 * 1.10).clamp(0.0, 255.0) as u8,
+                (kart_color.b as f32 * 1.10).clamp(0.0, 255.0) as u8,
+                255,
+            ),
+        );
+        draw.draw_rectangle(
+            center - sx(44.0),
+            base_y - sx(158.0),
+            sx(88.0),
+            sx(58.0),
+            Color::new(31, 36, 42, 255),
+        );
+
+        draw.draw_circle(
+            center,
+            base_y - sx(184.0),
+            36.0 * scale,
+            Color::new(245, 185, 72, 255),
+        );
+        draw.draw_rectangle(
+            center - sx(34.0),
+            base_y - sx(212.0),
+            sx(68.0),
+            sx(26.0),
+            Color::new(
+                (kart_color.r as f32 * 0.92) as u8,
+                (kart_color.g as f32 * 0.92) as u8,
+                (kart_color.b as f32 * 0.92) as u8,
+                255,
+            ),
+        );
+        draw.draw_rectangle(
+            center - sx(25.0),
+            base_y - sx(188.0),
+            sx(50.0),
+            sx(11.0),
+            Color::SKYBLUE,
+        );
+
+        draw.draw_rectangle(
+            center - sx(31.0),
+            base_y - sx(32.0),
+            sx(62.0),
+            sx(21.0),
+            Color::RAYWHITE,
+        );
+        draw.draw_text(
+            "RUST",
+            center - sx(24.0),
+            base_y - sx(30.0),
+            sx(17.0),
+            Color::BLACK,
+        );
+    }
+
+    fn draw_menu_title(&self, draw: &mut RaylibDrawHandle, width: i32, height: i32) {
+        let title = "KART RACER";
+        let title_size = (width as f32 * 0.065).clamp(44.0, 76.0) as i32;
+        let title_width = draw.measure_text(title, title_size);
+        let title_x = (width - title_width) / 2;
+        let title_y = (height as f32 * 0.09) as i32;
+
+        for offset in [8, 4] {
+            draw.draw_text(
+                title,
+                title_x + offset,
+                title_y + offset,
+                title_size,
+                Color::new(30, 45, 58, 220),
+            );
+        }
+
+        draw.draw_text(title, title_x, title_y, title_size, Color::RAYWHITE);
+        draw.draw_text(
+            title,
+            title_x + 3,
+            title_y + 3,
+            title_size,
+            Color::new(24, 31, 42, 85),
         );
     }
 
@@ -564,16 +841,20 @@ impl Framebuffer {
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
+        kart_color: Color,
+        kart_color_name: &str,
+        music_enabled: bool,
+        sfx_enabled: bool,
         selected_option: usize,
         show_controls: bool,
     ) {
-        let panel_w = (width as f32 * 0.38).clamp(390.0, 500.0) as i32;
+        let panel_w = (width as f32 * 0.38).clamp(390.0, 470.0) as i32;
 
-        let panel_x = (width as f32 * 0.06) as i32;
+        let panel_x = width / 2 - panel_w - 36;
 
-        let panel_y = (height as f32 * 0.42) as i32;
+        let panel_y = (height as f32 * 0.30) as i32;
 
-        let panel_h = 250;
+        let panel_h = (height as f32 * 0.50).clamp(360.0, 390.0) as i32;
 
         draw.draw_rectangle(
             panel_x + 8,
@@ -601,7 +882,7 @@ impl Framebuffer {
 
         let item_h = 52;
 
-        let start_y = panel_y + 26;
+        let start_y = panel_y + 30;
 
         self.draw_menu_item(
             draw,
@@ -615,43 +896,89 @@ impl Framebuffer {
             Color::YELLOW,
         );
 
+        let color_label = format!("Color: {}", kart_color_name);
+
         self.draw_menu_item(
             draw,
             panel_x + 48,
-            start_y + 64,
+            start_y + 58,
+            panel_w - 76,
+            item_h,
+            &color_label,
+            1,
+            selected_option == 1,
+            kart_color,
+        );
+
+        self.draw_menu_item(
+            draw,
+            panel_x + 48,
+            start_y + 116,
+            panel_w - 76,
+            item_h,
+            &format!("Musica: {}", if music_enabled { "ON" } else { "OFF" }),
+            2,
+            selected_option == 2,
+            if music_enabled {
+                Color::YELLOW
+            } else {
+                Color::LIGHTGRAY
+            },
+        );
+
+        self.draw_menu_item(
+            draw,
+            panel_x + 48,
+            start_y + 174,
+            panel_w - 76,
+            item_h,
+            &format!("Efectos: {}", if sfx_enabled { "ON" } else { "OFF" }),
+            3,
+            selected_option == 3,
+            if sfx_enabled {
+                Color::GREEN
+            } else {
+                Color::LIGHTGRAY
+            },
+        );
+
+        self.draw_menu_item(
+            draw,
+            panel_x + 48,
+            start_y + 232,
             panel_w - 76,
             item_h,
             "Controles",
             4,
-            selected_option == 1,
+            selected_option == 4,
             Color::RAYWHITE,
         );
 
         self.draw_menu_item(
             draw,
             panel_x + 48,
-            start_y + 128,
+            start_y + 290,
             panel_w - 76,
             item_h,
             "Salir",
             5,
-            selected_option == 2,
+            selected_option == 5,
             Color::RED,
         );
 
-        if selected_option < 3 {
+        if selected_option < 6 {
             draw.draw_triangle(
                 Vector2::new(
                     (panel_x + 26) as f32,
-                    (start_y + selected_option as i32 * 64 + 16) as f32,
+                    (start_y + selected_option as i32 * 58 + 16) as f32,
                 ),
                 Vector2::new(
                     (panel_x + 26) as f32,
-                    (start_y + selected_option as i32 * 64 + 36) as f32,
+                    (start_y + selected_option as i32 * 58 + 36) as f32,
                 ),
                 Vector2::new(
                     (panel_x + 42) as f32,
-                    (start_y + selected_option as i32 * 64 + 26) as f32,
+                    (start_y + selected_option as i32 * 58 + 26) as f32,
                 ),
                 Color::YELLOW,
             );
@@ -664,7 +991,7 @@ impl Framebuffer {
         draw.draw_rectangle_lines(panel_x, hint_y, panel_w, 44, Color::new(98, 184, 88, 255));
 
         draw.draw_text(
-            "W/S menu  -  ENTER aceptar",
+            "W/S menu  -  A/D cambiar  -  ENTER aceptar",
             panel_x + 22,
             hint_y + 13,
             20,
