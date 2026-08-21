@@ -34,9 +34,9 @@ pub struct Race {
 }
 
 impl Race {
-    pub fn new() -> Self {
+    pub fn new(track_index: usize) -> Self {
         Self {
-            checkpoints: checkpoints(),
+            checkpoints: checkpoints(track_index),
 
             current_checkpoint: 0,
 
@@ -61,79 +61,144 @@ impl Race {
     }
 }
 
-fn checkpoints() -> Vec<Checkpoint> {
-    vec![
-        Checkpoint {
-            x: 29.0,
-            y: 34.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 34.0,
-            y: 34.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 49.0,
-            y: 34.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 57.0,
-            y: 31.0,
-            radius: 3.2,
-        },
-        Checkpoint {
-            x: 57.0,
-            y: 22.0,
-            radius: 3.2,
-        },
-        Checkpoint {
-            x: 57.0,
-            y: 13.0,
-            radius: 3.2,
-        },
-        Checkpoint {
-            x: 52.0,
-            y: 7.0,
-            radius: 3.2,
-        },
-        Checkpoint {
-            x: 39.0,
-            y: 7.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 26.0,
-            y: 7.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 12.0,
-            y: 7.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 8.0,
-            y: 14.0,
-            radius: 3.2,
-        },
-        Checkpoint {
-            x: 8.0,
-            y: 24.0,
-            radius: 3.2,
-        },
-        Checkpoint {
-            x: 8.0,
-            y: 31.0,
-            radius: 3.0,
-        },
-        Checkpoint {
-            x: 20.5,
-            y: 34.0,
-            radius: 2.15,
-        },
-    ]
+fn checkpoints(track_index: usize) -> Vec<Checkpoint> {
+    match track_index % 2 {
+        1 => vec![
+            Checkpoint {
+                x: 25.0,
+                y: 34.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 39.0,
+                y: 34.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 55.5,
+                y: 30.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 55.5,
+                y: 20.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 50.0,
+                y: 12.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 41.0,
+                y: 12.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 29.0,
+                y: 19.5,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 18.0,
+                y: 15.5,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 8.0,
+                y: 12.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 8.0,
+                y: 25.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 22.0,
+                y: 28.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 20.5,
+                y: 34.0,
+                radius: 2.15,
+            },
+        ],
+
+        _ => vec![
+            Checkpoint {
+                x: 29.0,
+                y: 34.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 34.0,
+                y: 34.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 49.0,
+                y: 34.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 57.0,
+                y: 31.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 57.0,
+                y: 22.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 57.0,
+                y: 13.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 52.0,
+                y: 7.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 39.0,
+                y: 7.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 26.0,
+                y: 7.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 12.0,
+                y: 7.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 8.0,
+                y: 14.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 8.0,
+                y: 24.0,
+                radius: 3.2,
+            },
+            Checkpoint {
+                x: 8.0,
+                y: 31.0,
+                radius: 3.0,
+            },
+            Checkpoint {
+                x: 20.5,
+                y: 34.0,
+                radius: 2.15,
+            },
+        ],
+    }
 }
 
 impl Race {

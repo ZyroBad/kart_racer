@@ -113,6 +113,8 @@ fn tile_color(tile: char) -> Color {
         'W' => Color::new(60, 150, 220, 255),
 
         'Q' => Color::new(125, 205, 235, 255),
+        'D' => Color::new(76, 84, 96, 255),
+        'U' => Color::new(104, 108, 112, 255),
 
         'P' => Color::new(70, 72, 76, 255),
 
@@ -141,6 +143,9 @@ fn tile_color(tile: char) -> Color {
         'N' => Color::new(255, 255, 255, 255),
 
         'Y' => Color::new(245, 215, 55, 255),
+        'V' => Color::new(255, 225, 95, 255),
+        'Z' => Color::new(60, 210, 95, 255),
+        'E' => Color::new(255, 85, 210, 255),
 
         _ => Color::new(80, 150, 80, 255),
     }

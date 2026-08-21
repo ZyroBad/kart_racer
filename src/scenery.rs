@@ -9,7 +9,12 @@ struct Scenery {
     kind: char,
 }
 
-pub fn draw_sky(draw: &mut RaylibDrawHandle, width: i32, height: i32) {
+pub fn draw_sky(draw: &mut RaylibDrawHandle, width: i32, height: i32, is_city_track: bool) {
+    if is_city_track {
+        draw_city_sky(draw, width, height);
+        return;
+    }
+
     draw.draw_rectangle(0, 0, width, height / 2, Color::new(120, 190, 235, 255));
 
     draw.draw_circle(width - 120, 95, 38.0, Color::new(250, 220, 95, 255));
@@ -19,6 +24,53 @@ pub fn draw_sky(draw: &mut RaylibDrawHandle, width: i32, height: i32) {
     draw_cloud(draw, 390, 135, 0.75);
 
     draw_cloud(draw, 760, 80, 0.9);
+}
+
+fn draw_city_sky(draw: &mut RaylibDrawHandle, width: i32, height: i32) {
+    draw.draw_rectangle(0, 0, width, height / 2, Color::new(16, 24, 48, 255));
+    draw.draw_rectangle(
+        0,
+        height / 4,
+        width,
+        height / 4,
+        Color::new(23, 34, 64, 255),
+    );
+
+    draw.draw_circle(width - 120, 88, 34.0, Color::new(245, 238, 190, 255));
+    draw.draw_circle(width - 104, 78, 31.0, Color::new(16, 24, 48, 255));
+
+    for i in 0..34 {
+        let x = (i * 97 + 41) % width.max(1);
+        let y = 24 + (i * 53 + 17) % (height / 2 - 44).max(1);
+        let bright = if i % 3 == 0 { 245 } else { 170 };
+
+        draw.draw_rectangle(x, y, 2, 2, Color::new(bright, bright, 210, 220));
+    }
+
+    let horizon = height / 2 - 36;
+
+    for i in 0..12 {
+        let building_w = 54 + (i % 4) * 18;
+        let building_h = 70 + (i * 23) % 95;
+        let x = i * 112 - 24;
+        let y = horizon - building_h;
+
+        draw.draw_rectangle(x, y, building_w, building_h, Color::new(18, 25, 38, 255));
+
+        for row in 0..4 {
+            for col in 0..3 {
+                if (row + col + i) % 2 == 0 {
+                    draw.draw_rectangle(
+                        x + 10 + col * 15,
+                        y + 14 + row * 18,
+                        6,
+                        8,
+                        Color::new(255, 210, 75, 210),
+                    );
+                }
+            }
+        }
+    }
 }
 
 pub fn draw_scenery(
@@ -40,7 +92,7 @@ pub fn draw_scenery(
         for (col, tile) in line.iter().enumerate() {
             if matches!(
                 *tile,
-                'T' | 'F' | 'O' | 'C' | 'B' | 'A' | 'G' | 'N' | 'Y' | 'Q'
+                'T' | 'F' | 'O' | 'C' | 'B' | 'A' | 'G' | 'N' | 'Y' | 'Q' | 'V' | 'Z' | 'E'
             ) {
                 objects.push(Scenery {
                     x: col as f32 + 0.5,
@@ -290,6 +342,24 @@ fn draw_object(
             let size = (760.0 / corrected_distance).clamp(58.0, 310.0);
 
             draw_fountain(draw, height, screen_x, size, corrected_distance);
+        }
+
+        'V' => {
+            let size = (430.0 / corrected_distance).clamp(24.0, 175.0);
+
+            draw_street_lamp(draw, height, screen_x, size, corrected_distance);
+        }
+
+        'Z' => {
+            let size = (390.0 / corrected_distance).clamp(24.0, 160.0);
+
+            draw_traffic_light(draw, height, screen_x, size, corrected_distance);
+        }
+
+        'E' => {
+            let size = (440.0 / corrected_distance).clamp(28.0, 190.0);
+
+            draw_neon_sign(draw, height, screen_x, size, corrected_distance);
         }
 
         _ => {}
@@ -886,6 +956,138 @@ fn draw_turn_sign(draw: &mut RaylibDrawHandle, height: i32, x: f32, size: f32, d
         (top + sign_h * 0.16) as i32,
         font_size,
         Color::BLACK,
+    );
+}
+
+fn draw_street_lamp(draw: &mut RaylibDrawHandle, height: i32, x: f32, size: f32, distance: f32) {
+    let ground_y = object_ground_y(height, distance);
+    let shade = (1.0 / (1.0 + distance * 0.05)).clamp(0.52, 1.0);
+    let pole = shade_color(Color::new(58, 62, 70, 255), shade);
+    let glow = Color::new(255, 230, 105, (130.0 * shade) as u8);
+
+    draw.draw_ellipse(
+        x as i32,
+        (ground_y + size * 0.04) as i32,
+        size * 0.18,
+        size * 0.05,
+        Color::new(20, 20, 20, 95),
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.035) as i32,
+        (ground_y - size * 1.25) as i32,
+        (size * 0.07).max(2.0) as i32,
+        (size * 1.25) as i32,
+        pole,
+    );
+
+    draw.draw_line_ex(
+        Vector2::new(x, ground_y - size * 1.20),
+        Vector2::new(x + size * 0.34, ground_y - size * 1.32),
+        (size * 0.05).max(2.0),
+        pole,
+    );
+
+    draw.draw_circle(
+        (x + size * 0.42) as i32,
+        (ground_y - size * 1.33) as i32,
+        size * 0.17,
+        glow,
+    );
+
+    draw.draw_rectangle(
+        (x + size * 0.27) as i32,
+        (ground_y - size * 1.40) as i32,
+        (size * 0.30) as i32,
+        (size * 0.12) as i32,
+        shade_color(Color::new(245, 205, 70, 255), shade),
+    );
+}
+
+fn draw_traffic_light(draw: &mut RaylibDrawHandle, height: i32, x: f32, size: f32, distance: f32) {
+    let ground_y = object_ground_y(height, distance);
+    let shade = (1.0 / (1.0 + distance * 0.05)).clamp(0.52, 1.0);
+    let pole = shade_color(Color::new(52, 55, 62, 255), shade);
+    let box_color = shade_color(Color::new(28, 32, 38, 255), shade);
+
+    draw.draw_rectangle(
+        (x - size * 0.035) as i32,
+        (ground_y - size * 1.18) as i32,
+        (size * 0.07).max(2.0) as i32,
+        (size * 1.18) as i32,
+        pole,
+    );
+
+    draw.draw_rectangle(
+        (x - size * 0.22) as i32,
+        (ground_y - size * 1.34) as i32,
+        (size * 0.44) as i32,
+        (size * 0.58) as i32,
+        box_color,
+    );
+
+    let lights = [
+        (Color::new(230, 40, 38, 255), -1.18),
+        (Color::new(245, 205, 45, 255), -1.05),
+        (Color::new(60, 210, 95, 255), -0.92),
+    ];
+
+    for &(color, y_mul) in &lights {
+        draw.draw_circle(
+            x as i32,
+            (ground_y + size * y_mul) as i32,
+            size * 0.055,
+            shade_color(color, shade),
+        );
+    }
+}
+
+fn draw_neon_sign(draw: &mut RaylibDrawHandle, height: i32, x: f32, size: f32, distance: f32) {
+    let ground_y = object_ground_y(height, distance);
+    let shade = (1.0 / (1.0 + distance * 0.05)).clamp(0.50, 1.0);
+    let width = size * 1.08;
+    let sign_h = size * 0.42;
+    let top = ground_y - size * 1.12;
+    let left = x - width / 2.0;
+
+    draw.draw_rectangle(
+        (left + width * 0.16) as i32,
+        top as i32,
+        (size * 0.07).max(2.0) as i32,
+        (size * 1.05) as i32,
+        shade_color(Color::new(45, 48, 56, 255), shade),
+    );
+
+    draw.draw_rectangle(
+        (left + width * 0.78) as i32,
+        top as i32,
+        (size * 0.07).max(2.0) as i32,
+        (size * 1.05) as i32,
+        shade_color(Color::new(45, 48, 56, 255), shade),
+    );
+
+    draw.draw_rectangle(
+        left as i32,
+        top as i32,
+        width as i32,
+        sign_h as i32,
+        shade_color(Color::new(18, 24, 34, 255), shade),
+    );
+
+    draw.draw_rectangle_lines(
+        left as i32,
+        top as i32,
+        width as i32,
+        sign_h as i32,
+        shade_color(Color::new(80, 190, 255, 255), shade),
+    );
+
+    draw.draw_text(
+        "METRO",
+        (left + size * 0.16) as i32,
+        (top + sign_h * 0.26) as i32,
+        (size * 0.14).max(9.0) as i32,
+        shade_color(Color::new(255, 80, 205, 255), shade),
     );
 }
 

@@ -31,10 +31,10 @@ impl Player {
             boost_flash: 0.0,
             boost_timer: 0.0,
 
-            max_speed: 6.45,
-            reverse_speed: 2.8,
-            acceleration: 10.2,
-            friction: 5.2,
+            max_speed: 5.55,
+            reverse_speed: 2.45,
+            acceleration: 8.6,
+            friction: 4.75,
 
             rotation_speed: 3.2,
             low_speed_rotation: 2.35,
@@ -103,7 +103,7 @@ impl Player {
         if current_tile == 'R' && self.velocity > 1.0 {
             self.boost_timer = 0.70;
 
-            self.velocity = (self.velocity + 10.5 * dt).min(self.max_speed * 1.18);
+            self.velocity = (self.velocity + 8.2 * dt).min(self.max_speed * 1.14);
 
             self.boost_flash = 1.0;
         }
@@ -240,11 +240,11 @@ impl Player {
 }
 
 pub fn is_solid(tile: char) -> bool {
-    matches!(tile, '#' | 'H' | 'S' | 'W')
+    matches!(tile, '#' | 'H' | 'S' | 'W' | 'D')
 }
 
 pub fn is_wall(tile: char) -> bool {
-    matches!(tile, '#' | 'H' | 'S' | 'W')
+    matches!(tile, '#' | 'H' | 'S' | 'W' | 'D')
 }
 
 fn tile_at(map: &[Vec<char>], x: f32, y: f32) -> char {
@@ -268,6 +268,7 @@ fn surface_speed_factor(tile: char) -> f32 {
         'P' | 'M' | 'K' | 'L' => 1.0,
         'R' => 1.08,
         'F' => 0.74,
+        'U' => 0.70,
         '.' => 0.62,
         _ => 0.82,
     }
