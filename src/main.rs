@@ -790,4 +790,12 @@ mod tests {
         assert!(city.iter().flatten().any(|tile| *tile == 'Z'));
         assert!(city.iter().flatten().any(|tile| *tile == 'E'));
     }
+
+    #[test]
+    fn required_audio_assets_are_present() {
+        assert!(Path::new("assets/audio/music/besame_mucho.wav").exists());
+        assert!(Path::new(ENGINE_SOUND_FILE).exists());
+        assert!(Path::new(BOOST_SOUND_FILE).exists());
+        assert!(Path::new(CHECKPOINT_SOUND_FILE).exists());
+    }
 }
