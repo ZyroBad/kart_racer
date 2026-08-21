@@ -815,6 +815,18 @@ mod tests {
     }
 
     #[test]
+    fn final_checkpoints_are_on_finish_tiles() {
+        for track in 0..TRACK_COUNT {
+            let map = build_track_map(track);
+            let race = Race::new(track);
+            let finish = race.checkpoints().last().unwrap();
+            let tile = map[finish.y.floor() as usize][finish.x.floor() as usize];
+
+            assert!(matches!(tile, 'M' | 'N'));
+        }
+    }
+
+    #[test]
     fn required_audio_assets_are_present() {
         assert!(Path::new("assets/audio/music/besame_mucho.wav").exists());
         assert!(Path::new(ENGINE_SOUND_FILE).exists());

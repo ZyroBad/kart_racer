@@ -230,63 +230,129 @@ impl Framebuffer {
     ) {
         draw.draw_rectangle(0, 0, width, height, Color::new(0, 0, 0, 175));
 
+        let panel_w = (width as f32 * 0.46).clamp(430.0, 620.0) as i32;
+        let panel_h = 365;
+        let panel_x = (width - panel_w) / 2;
+        let panel_y = height / 2 - panel_h / 2;
+
+        draw.draw_rectangle(
+            panel_x + 9,
+            panel_y + 9,
+            panel_w,
+            panel_h,
+            Color::new(0, 0, 0, 150),
+        );
+        draw.draw_rectangle(
+            panel_x,
+            panel_y,
+            panel_w,
+            panel_h,
+            Color::new(18, 28, 34, 242),
+        );
+        draw.draw_rectangle_lines(panel_x, panel_y, panel_w, panel_h, Color::YELLOW);
+
         let title = "CARRERA COMPLETADA";
 
-        let title_size = 44;
+        let title_size = 38;
 
         let title_width = draw.measure_text(title, title_size);
 
         draw.draw_text(
             title,
             (width - title_width) / 2,
-            height / 2 - 105,
+            panel_y + 28,
             title_size,
             Color::YELLOW,
         );
 
-        let total = format!("TIEMPO TOTAL: {}", format_time(race.race_time()));
+        let rows = [
+            ("TIEMPO TOTAL", format_time(race.race_time())),
+            ("ULTIMA VUELTA", match race.last_lap_time() {
+                Some(time) => format_time(time),
+                None => "--:--.---".to_string(),
+            }),
+            ("MEJOR VUELTA", match race.best_lap_time() {
+                Some(time) => format_time(time),
+                None => "--:--.---".to_string(),
+            }),
+        ];
 
-        let total_size = 28;
+        for (index, (label, value)) in rows.iter().enumerate() {
+            let y = panel_y + 96 + index as i32 * 48;
 
-        let total_width = draw.measure_text(&total, total_size);
+            draw.draw_rectangle(
+                panel_x + 48,
+                y - 9,
+                panel_w - 96,
+                36,
+                Color::new(8, 15, 20, 195),
+            );
 
-        draw.draw_text(
-            &total,
-            (width - total_width) / 2,
-            height / 2 - 25,
-            total_size,
-            Color::RAYWHITE,
+            draw.draw_text(label, panel_x + 68, y, 20, Color::LIGHTGRAY);
+
+            let value_width = draw.measure_text(value, 22);
+
+            draw.draw_text(
+                value,
+                panel_x + panel_w - 68 - value_width,
+                y - 1,
+                22,
+                if *label == "MEJOR VUELTA" {
+                    Color::GREEN
+                } else {
+                    Color::RAYWHITE
+                },
+            );
+        }
+
+        let restart = "ENTER / R  JUGAR DE NUEVO";
+        let menu = "BACKSPACE  MENU";
+        let button_y = panel_y + panel_h - 104;
+        let button_w = panel_w - 96;
+
+        draw.draw_rectangle(
+            panel_x + 48,
+            button_y,
+            button_w,
+            38,
+            Color::new(32, 47, 54, 255),
         );
-
-        let best = match race.best_lap_time() {
-            Some(time) => format!("MEJOR VUELTA: {}", format_time(time)),
-
-            None => "MEJOR VUELTA: --:--.---".to_string(),
-        };
-
-        let best_size = 24;
-
-        let best_width = draw.measure_text(&best, best_size);
-
-        draw.draw_text(
-            &best,
-            (width - best_width) / 2,
-            height / 2 + 25,
-            best_size,
-            Color::GREEN,
+        draw.draw_rectangle_lines(
+            panel_x + 48,
+            button_y,
+            button_w,
+            38,
+            Color::new(98, 184, 88, 255),
         );
-
-        let restart = "ENTER / R PARA JUGAR DE NUEVO   |   BACKSPACE AL MENU";
-
-        let restart_size = 20;
-
-        let restart_width = draw.measure_text(restart, restart_size);
-
+        let restart_width = draw.measure_text(restart, 18);
         draw.draw_text(
             restart,
-            (width - restart_width) / 2,
-            height / 2 + 78,
-            restart_size,
+            panel_x + (panel_w - restart_width) / 2,
+            button_y + 10,
+            18,
+            Color::YELLOW,
+        );
+
+        draw.draw_rectangle(
+            panel_x + 48,
+            button_y + 48,
+            button_w,
+            38,
+            Color::new(20, 31, 37, 235),
+        );
+        draw.draw_rectangle_lines(
+            panel_x + 48,
+            button_y + 48,
+            button_w,
+            38,
+            Color::RAYWHITE,
+        );
+        let menu_width = draw.measure_text(menu, 18);
+        draw.draw_text(
+            menu,
+            panel_x + (panel_w - menu_width) / 2,
+            button_y + 58,
+            18,
             Color::RAYWHITE,
         );
     }

@@ -28,20 +28,20 @@ cargo run
 - Circuito jugable con colisiones contra paredes y bordes.
 - Checkpoints sincronizados con vueltas.
 - Meta final sincronizada con la franja de meta.
-- Minimap en esquina con posicion del jugador y objetivo activo.
+- Minimap en esquina con posicion del jugador, ruta de checkpoints y objetivo activo.
 - FPS visibles en pantalla.
 - Menu de inicio funcional con imagen de fondo, controles y salida.
 - Menu de pausa con opcion para activar/desactivar musica.
 - Pantalla separada para seleccionar pista y vehiculo antes de iniciar la carrera.
 - Pantalla de pausa.
 - Menu de pausa con opcion para continuar o volver al menu principal.
-- Pantalla final con tiempos y opcion para jugar de nuevo.
+- Pantalla final con resumen de tiempos, mejor vuelta, opcion para jugar de nuevo y volver al menu.
 - Boost pads con feedback visual.
 - Derrape con humo y marcas de llanta.
 - Dos circuitos: Jardin Rust y Gran Premio Metro nocturno.
 - Vehiculos seleccionables: kart y moto.
 - Decoracion de pista: gradas, edificios con ventanas, luces urbanas, semaforos, rotulos, senales, conos, barreras y fuente central.
-- Guia de direccion hacia el siguiente checkpoint para evitar perderse en pistas grandes.
+- Guia de direccion y ruta en minimap hacia el siguiente checkpoint para evitar perderse en pistas grandes.
 - Soporte de audio para musica y efectos desde `assets/audio`.
 
 ## Criterios cubiertos
