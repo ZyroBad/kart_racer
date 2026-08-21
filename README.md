@@ -44,9 +44,34 @@ cargo run
 - Guia de direccion hacia el siguiente checkpoint para evitar perderse en pistas grandes.
 - Soporte de audio opcional para musica y efectos desde `assets/audio`.
 
-## Pendiente
+## Criterios cubiertos
 
-- Agregar archivos de musica y efectos con licencia valida.
+- FPS visibles durante la carrera.
+- Camara con movimiento hacia delante, atras, giro y rotacion horizontal con mouse.
+- Minimap en esquina con posicion del jugador y checkpoint activo.
+- Musica de fondo con opcion para activar/desactivar.
+- Efectos de sonido para motor, boost y checkpoints.
+- Pantalla de bienvenida/menu principal.
+- Seleccion de multiples niveles.
+- Seleccion de vehiculo entre kart y moto.
+- Pantalla de pausa con opcion para continuar, volver al menu y controlar musica.
+- Pantalla de exito al completar la carrera.
+- Paredes, suelos y objetos con colores distintos segun el tipo de tile.
+
+## Checklist de entrega
+
+- Probar una carrera completa en `Jardin Rust`.
+- Probar una carrera completa en `Gran Premio Metro`.
+- Confirmar que el jugador no atraviesa paredes ni objetos solidos.
+- Confirmar que `P` pausa y que se puede volver al menu.
+- Confirmar que `Musica ON/OFF` reinicia la cancion al volver a encenderla.
+- Confirmar que los efectos de motor, boost y checkpoint suenan durante carrera.
+- Grabar video mostrando menu, seleccion de pista, seleccion de vehiculo, carrera, minimap, FPS, pausa, audio y pantalla final.
+
+## Pendiente opcional
+
+- Convertir `besame_mucho.wav` a `.ogg` para reducir el peso del repositorio.
+- Ajustar volumenes finales segun se escuche en el video de entrega.
 
 ## Audio
 
