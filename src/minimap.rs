@@ -54,7 +54,31 @@ pub fn draw_minimap(
         );
     }
 
-    // Checkpoint activo
+    let checkpoints = race.checkpoints();
+
+    for pair in checkpoints.windows(2) {
+        let a = pair[0];
+        let b = pair[1];
+
+        draw.draw_line(
+            (origin_x + a.x * scale) as i32,
+            (origin_y + a.y * scale) as i32,
+            (origin_x + b.x * scale) as i32,
+            (origin_y + b.y * scale) as i32,
+            Color::new(255, 230, 90, 95),
+        );
+    }
+
+    if let (Some(first), Some(last)) = (checkpoints.first(), checkpoints.last()) {
+        draw.draw_line(
+            (origin_x + last.x * scale) as i32,
+            (origin_y + last.y * scale) as i32,
+            (origin_x + first.x * scale) as i32,
+            (origin_y + first.y * scale) as i32,
+            Color::new(255, 230, 90, 95),
+        );
+    }
+
     if let Some(checkpoint) = race.active_checkpoint() {
         let checkpoint_x = origin_x + checkpoint.x * scale;
 

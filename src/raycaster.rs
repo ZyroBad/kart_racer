@@ -228,7 +228,7 @@ fn floor_color(map: &[Vec<char>], x: f32, y: f32, is_city_track: bool) -> Color 
     match map[map_y][map_x] {
         'P' => {
             if is_city_track {
-                city_road_color(map_x, map_y, x, y)
+                city_road_color(map, map_x, map_y, x, y)
             } else {
                 Color::new(70, 72, 76, 255)
             }
@@ -236,7 +236,7 @@ fn floor_color(map: &[Vec<char>], x: f32, y: f32, is_city_track: bool) -> Color 
 
         'K' => {
             if is_city_track {
-                city_road_color(map_x, map_y, x, y)
+                city_road_color(map, map_x, map_y, x, y)
             } else if (map_x + map_y) % 2 == 0 {
                 Color::RAYWHITE
             } else {
@@ -292,14 +292,35 @@ fn grass_color() -> Color {
     Color::new(65, 125, 70, 255)
 }
 
-fn city_road_color(map_x: usize, map_y: usize, x: f32, y: f32) -> Color {
+fn city_road_color(map: &[Vec<char>], map_x: usize, map_y: usize, x: f32, y: f32) -> Color {
     let local_x = x.fract();
     let local_y = y.fract();
 
-    if ((local_x > 0.48 && local_x < 0.52) || (local_y > 0.48 && local_y < 0.52))
-        && (map_x + map_y) % 4 != 0
-    {
-        return Color::new(118, 120, 118, 255);
+    let left = is_city_road(map, map_x as isize - 1, map_y as isize);
+    let right = is_city_road(map, map_x as isize + 1, map_y as isize);
+    let up = is_city_road(map, map_x as isize, map_y as isize - 1);
+    let down = is_city_road(map, map_x as isize, map_y as isize + 1);
+    let horizontal = left && right;
+    let vertical = up && down;
+    let near_edge = (!left && local_x < 0.12)
+        || (!right && local_x > 0.88)
+        || (!up && local_y < 0.12)
+        || (!down && local_y > 0.88);
+
+    if near_edge {
+        return Color::new(215, 172, 45, 255);
+    }
+
+    let dashed = if horizontal && !vertical {
+        local_y > 0.47 && local_y < 0.53 && map_x % 4 < 2
+    } else if vertical && !horizontal {
+        local_x > 0.47 && local_x < 0.53 && map_y % 4 < 2
+    } else {
+        false
+    };
+
+    if dashed {
+        return Color::new(210, 212, 205, 255);
     }
 
     if (map_x + map_y) % 7 == 0 {
@@ -307,6 +328,21 @@ fn city_road_color(map_x: usize, map_y: usize, x: f32, y: f32) -> Color {
     } else {
         Color::new(64, 67, 73, 255)
     }
+}
+
+fn is_city_road(map: &[Vec<char>], x: isize, y: isize) -> bool {
+    if x < 0 || y < 0 {
+        return false;
+    }
+
+    let x = x as usize;
+    let y = y as usize;
+
+    if y >= map.len() || x >= map[y].len() {
+        return false;
+    }
+
+    matches!(map[y][x], 'P' | 'K' | 'M' | 'N' | 'R')
 }
 
 fn draw_building_details(

@@ -193,7 +193,7 @@ fn checkpoints(track_index: usize) -> Vec<Checkpoint> {
                 radius: 3.0,
             },
             Checkpoint {
-                x: 21.0,
+                x: 22.5,
                 y: 33.9,
                 radius: 1.15,
             },
@@ -294,6 +294,10 @@ impl Race {
 
     pub fn checkpoint_count(&self) -> usize {
         self.checkpoints.len()
+    }
+
+    pub fn checkpoints(&self) -> &[Checkpoint] {
+        &self.checkpoints
     }
 
     pub fn finished(&self) -> bool {
