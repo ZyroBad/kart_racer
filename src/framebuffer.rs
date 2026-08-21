@@ -19,12 +19,22 @@ impl Framebuffer {
         race: &Race,
         fov: f32,
         number_of_rays: usize,
+        menu_background: Option<&Texture2D>,
         show_start_screen: bool,
+        show_track_select_screen: bool,
         kart_color: Color,
-        kart_color_name: &str,
+        _kart_color_name: &str,
         track_name: &str,
+        selected_track: usize,
+        track_count: usize,
+        track_select_option: usize,
+        vehicle_index: usize,
+        vehicle_name: &str,
+        music_enabled: bool,
+        _sfx_enabled: bool,
         countdown_timer: Option<f32>,
         show_pause_screen: bool,
+        pause_menu_option: usize,
         start_menu_option: usize,
         show_controls: bool,
     ) {
@@ -40,9 +50,7 @@ impl Framebuffer {
                 draw,
                 width,
                 height,
-                kart_color,
-                kart_color_name,
-                track_name,
+                menu_background,
                 start_menu_option,
                 show_controls,
             );
@@ -50,13 +58,32 @@ impl Framebuffer {
             return;
         }
 
-        scenery::draw_sky(draw, width, height);
+        if show_track_select_screen {
+            self.draw_track_select_screen(
+                draw,
+                width,
+                height,
+                selected_track,
+                track_count,
+                track_select_option,
+                track_name,
+                kart_color,
+                vehicle_index,
+                vehicle_name,
+            );
 
-        raycaster::draw_floor(draw, width, height, map, player, fov);
+            return;
+        }
+
+        let is_city_track = selected_track == 1;
+
+        scenery::draw_sky(draw, width, height, is_city_track);
+
+        raycaster::draw_floor(draw, width, height, map, player, fov, is_city_track);
 
         let rays = raycaster::cast_all_rays(map, player, fov, number_of_rays);
 
-        raycaster::draw_walls(draw, width, height, &rays, fov);
+        raycaster::draw_walls(draw, width, height, &rays, fov, is_city_track);
 
         scenery::draw_scenery(draw, width, height, map, player, fov, &rays);
 
@@ -75,6 +102,7 @@ impl Framebuffer {
             player.drift,
             player.boost_flash,
             kart_color,
+            vehicle_index,
             race.race_time(),
         );
 
@@ -89,7 +117,7 @@ impl Framebuffer {
         }
 
         if show_pause_screen {
-            self.draw_pause_screen(draw, width, height);
+            self.draw_pause_screen(draw, width, height, pause_menu_option, music_enabled);
         }
     }
 
@@ -417,21 +445,27 @@ impl Framebuffer {
 
         let top = 28;
 
-        let direction = if relative_angle.abs() < 0.20 {
-            "^"
+        let (direction, instruction) = if relative_angle.abs() < 0.20 {
+            ("^", "RECTO")
         } else if relative_angle > 0.0 {
-            ">"
+            (">", "DERECHA")
         } else {
-            "<"
+            ("<", "IZQUIERDA")
         };
 
-        draw.draw_rectangle(center_x - 125, top, 250, 58, Color::new(10, 12, 18, 185));
+        draw.draw_rectangle(center_x - 145, top, 290, 72, Color::new(10, 12, 18, 205));
+        draw.draw_rectangle_lines(center_x - 145, top, 290, 72, Color::new(255, 225, 60, 220));
 
         let accent = race.active_checkpoint_color();
 
-        draw.draw_text(direction, center_x - 10, top + 5, 30, accent);
+        draw.draw_text(direction, center_x - 12, top + 2, 34, accent);
 
-        let text = format!("{}: {:.0}m", race.active_checkpoint_label(), distance * 3.0);
+        let text = format!(
+            "{} {}: {:.0}m",
+            instruction,
+            race.active_checkpoint_label(),
+            distance * 3.0
+        );
 
         let text_size = 16;
 
@@ -440,7 +474,7 @@ impl Framebuffer {
         draw.draw_text(
             &text,
             center_x - text_width / 2,
-            top + 38,
+            top + 44,
             text_size,
             Color::RAYWHITE,
         );
@@ -451,28 +485,44 @@ impl Framebuffer {
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
-        kart_color: Color,
-        kart_color_name: &str,
-        track_name: &str,
+        menu_background: Option<&Texture2D>,
         selected_option: usize,
         show_controls: bool,
     ) {
-        self.draw_menu_scene(draw, width, height);
+        if let Some(texture) = menu_background {
+            self.draw_menu_background_image(draw, width, height, texture);
+        } else {
+            self.draw_menu_scene(draw, width, height);
+        }
 
-        self.draw_menu_title(draw, width, height);
+        self.draw_menu_panel(draw, width, height, selected_option, show_controls);
+    }
 
-        self.draw_menu_panel(
-            draw,
-            width,
-            height,
-            kart_color,
-            kart_color_name,
-            track_name,
-            selected_option,
-            show_controls,
+    fn draw_menu_background_image(
+        &self,
+        draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
+        texture: &Texture2D,
+    ) {
+        let tex_w = texture.width() as f32;
+        let tex_h = texture.height() as f32;
+        let scale = (width as f32 / tex_w).max(height as f32 / tex_h);
+        let src_w = width as f32 / scale;
+        let src_h = height as f32 / scale;
+        let src_x = (tex_w - src_w) * 0.5;
+        let src_y = (tex_h - src_h) * 0.5;
+
+        draw.draw_texture_pro(
+            texture,
+            Rectangle::new(src_x, src_y, src_w, src_h),
+            Rectangle::new(0.0, 0.0, width as f32, height as f32),
+            Vector2::new(0.0, 0.0),
+            0.0,
+            Color::WHITE,
         );
 
-        self.draw_menu_kart_preview(draw, width, height, kart_color);
+        draw.draw_rectangle(0, 0, width, height, Color::new(0, 0, 0, 22));
     }
 
     fn draw_menu_scene(&self, draw: &mut RaylibDrawHandle, width: i32, height: i32) {
@@ -509,56 +559,21 @@ impl Framebuffer {
         );
     }
 
-    fn draw_menu_title(&self, draw: &mut RaylibDrawHandle, width: i32, height: i32) {
-        let title = "KART RACER";
-
-        let title_size = (width as f32 * 0.065).clamp(44.0, 76.0) as i32;
-
-        let title_width = draw.measure_text(title, title_size);
-
-        let title_x = (width - title_width) / 2;
-
-        let title_y = (height as f32 * 0.09) as i32;
-
-        for offset in [8, 4] {
-            draw.draw_text(
-                title,
-                title_x + offset,
-                title_y + offset,
-                title_size,
-                Color::new(30, 45, 58, 220),
-            );
-        }
-
-        draw.draw_text(title, title_x, title_y, title_size, Color::RAYWHITE);
-
-        draw.draw_text(
-            title,
-            title_x + 3,
-            title_y + 3,
-            title_size,
-            Color::new(24, 31, 42, 85),
-        );
-    }
-
     fn draw_menu_panel(
         &self,
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
-        kart_color: Color,
-        kart_color_name: &str,
-        _track_name: &str,
         selected_option: usize,
         show_controls: bool,
     ) {
-        let panel_w = (width as f32 * 0.38).clamp(390.0, 470.0) as i32;
+        let panel_w = (width as f32 * 0.38).clamp(390.0, 500.0) as i32;
 
-        let panel_x = width / 2 - panel_w - 36;
+        let panel_x = (width as f32 * 0.06) as i32;
 
-        let panel_y = (height as f32 * 0.39) as i32;
+        let panel_y = (height as f32 * 0.42) as i32;
 
-        let panel_h = (height as f32 * 0.36).clamp(244.0, 276.0) as i32;
+        let panel_h = 250;
 
         draw.draw_rectangle(
             panel_x + 8,
@@ -586,7 +601,7 @@ impl Framebuffer {
 
         let item_h = 52;
 
-        let start_y = panel_y + 30;
+        let start_y = panel_y + 26;
 
         self.draw_menu_item(
             draw,
@@ -600,57 +615,43 @@ impl Framebuffer {
             Color::YELLOW,
         );
 
-        let color_label = format!("Color: {}", kart_color_name);
-
         self.draw_menu_item(
             draw,
             panel_x + 48,
-            start_y + 58,
-            panel_w - 76,
-            item_h,
-            &color_label,
-            1,
-            selected_option == 1,
-            kart_color,
-        );
-
-        self.draw_menu_item(
-            draw,
-            panel_x + 48,
-            start_y + 116,
+            start_y + 64,
             panel_w - 76,
             item_h,
             "Controles",
-            2,
-            selected_option == 2,
+            4,
+            selected_option == 1,
             Color::RAYWHITE,
         );
 
         self.draw_menu_item(
             draw,
             panel_x + 48,
-            start_y + 174,
+            start_y + 128,
             panel_w - 76,
             item_h,
             "Salir",
-            3,
-            selected_option == 3,
+            5,
+            selected_option == 2,
             Color::RED,
         );
 
-        if selected_option < 4 {
+        if selected_option < 3 {
             draw.draw_triangle(
                 Vector2::new(
                     (panel_x + 26) as f32,
-                    (start_y + selected_option as i32 * 58 + 16) as f32,
+                    (start_y + selected_option as i32 * 64 + 16) as f32,
                 ),
                 Vector2::new(
                     (panel_x + 26) as f32,
-                    (start_y + selected_option as i32 * 58 + 36) as f32,
+                    (start_y + selected_option as i32 * 64 + 36) as f32,
                 ),
                 Vector2::new(
                     (panel_x + 42) as f32,
-                    (start_y + selected_option as i32 * 58 + 26) as f32,
+                    (start_y + selected_option as i32 * 64 + 26) as f32,
                 ),
                 Color::YELLOW,
             );
@@ -663,7 +664,7 @@ impl Framebuffer {
         draw.draw_rectangle_lines(panel_x, hint_y, panel_w, 44, Color::new(98, 184, 88, 255));
 
         draw.draw_text(
-            "W/S menu  -  A/D color  -  ENTER aceptar",
+            "W/S menu  -  ENTER aceptar",
             panel_x + 22,
             hint_y + 13,
             20,
@@ -675,126 +676,287 @@ impl Framebuffer {
         }
     }
 
-    fn draw_menu_kart_preview(
+    fn draw_track_select_screen(
         &self,
         draw: &mut RaylibDrawHandle,
         width: i32,
         height: i32,
+        selected_track: usize,
+        track_count: usize,
+        track_select_option: usize,
+        track_name: &str,
         kart_color: Color,
+        vehicle_index: usize,
+        vehicle_name: &str,
     ) {
-        let scale = (width as f32 / 1200.0)
-            .min(height as f32 / 720.0)
-            .clamp(0.95, 1.22);
+        self.draw_menu_scene(draw, width, height);
 
-        let center = width / 2 + (130.0 * scale) as i32;
-
-        let base_y = (height as f32 * 0.77) as i32;
-
-        let sx = |value: f32| -> i32 { (value * scale) as i32 };
-
-        draw.draw_ellipse(
-            center,
-            base_y + sx(18.0),
-            118.0 * scale,
-            24.0 * scale,
-            Color::new(20, 20, 20, 130),
-        );
-
-        draw.draw_rectangle(
-            center - sx(110.0),
-            base_y - sx(70.0),
-            sx(34.0),
-            sx(82.0),
-            Color::new(23, 24, 28, 255),
-        );
-
-        draw.draw_rectangle(
-            center + sx(76.0),
-            base_y - sx(70.0),
-            sx(34.0),
-            sx(82.0),
-            Color::new(23, 24, 28, 255),
-        );
-
-        draw.draw_rectangle(
-            center - sx(94.0),
-            base_y - sx(30.0),
-            sx(188.0),
-            sx(34.0),
-            self.menu_shade_color(kart_color, 0.74),
-        );
-
-        draw.draw_rectangle(
-            center - sx(76.0),
-            base_y - sx(102.0),
-            sx(152.0),
-            sx(74.0),
-            kart_color,
-        );
-
-        draw.draw_rectangle(
-            center - sx(56.0),
-            base_y - sx(132.0),
-            sx(112.0),
-            sx(38.0),
-            self.menu_shade_color(kart_color, 1.12),
-        );
-
-        draw.draw_rectangle(
-            center - sx(38.0),
-            base_y - sx(148.0),
-            sx(76.0),
-            sx(50.0),
-            Color::new(32, 36, 42, 255),
-        );
-
-        draw.draw_circle(
-            center,
-            base_y - sx(170.0),
-            34.0 * scale,
-            Color::new(245, 185, 72, 255),
-        );
-
-        draw.draw_rectangle(
-            center - sx(30.0),
-            base_y - sx(196.0),
-            sx(60.0),
-            sx(24.0),
-            self.menu_shade_color(kart_color, 0.92),
-        );
-
-        draw.draw_rectangle(
-            center - sx(22.0),
-            base_y - sx(174.0),
-            sx(44.0),
-            sx(10.0),
-            Color::SKYBLUE,
-        );
-
-        draw.draw_rectangle(
-            center - sx(28.0),
-            base_y - sx(32.0),
-            sx(56.0),
-            sx(20.0),
+        let title = "SELECCIONA PISTA";
+        let title_size = (width as f32 * 0.048).clamp(36.0, 56.0) as i32;
+        let title_width = draw.measure_text(title, title_size);
+        draw.draw_text(
+            title,
+            (width - title_width) / 2,
+            (height as f32 * 0.08) as i32,
+            title_size,
             Color::RAYWHITE,
         );
 
+        let card_w = (width as f32 * 0.32).clamp(280.0, 380.0) as i32;
+        let card_h = (height as f32 * 0.42).clamp(250.0, 310.0) as i32;
+        let gap = 34;
+        let total_w = card_w * track_count as i32 + gap * (track_count as i32 - 1);
+        let start_x = (width - total_w) / 2;
+        let y = (height as f32 * 0.25) as i32;
+
+        for track in 0..track_count {
+            let x = start_x + track as i32 * (card_w + gap);
+            self.draw_track_card(
+                draw,
+                x,
+                y,
+                card_w,
+                card_h,
+                track,
+                selected_track == track,
+                track_select_option == 0,
+            );
+        }
+
+        let selected = format!("{} listo en {}", vehicle_name, track_name);
+        let selected_size = 24;
+        let selected_width = draw.measure_text(&selected, selected_size);
         draw.draw_text(
-            "RUST",
-            center - sx(21.0),
-            base_y - sx(30.0),
-            sx(16.0),
-            Color::BLACK,
+            &selected,
+            (width - selected_width) / 2,
+            y + card_h + 24,
+            selected_size,
+            Color::YELLOW,
+        );
+
+        let vehicle_y = y + card_h + 62;
+        let vehicle_w = 330;
+        let vehicle_x = (width - vehicle_w) / 2;
+        let vehicle_selected = track_select_option == 1;
+
+        draw.draw_rectangle(
+            vehicle_x,
+            vehicle_y,
+            vehicle_w,
+            58,
+            Color::new(23, 35, 42, 238),
+        );
+        draw.draw_rectangle_lines(
+            vehicle_x,
+            vehicle_y,
+            vehicle_w,
+            58,
+            if vehicle_selected {
+                Color::YELLOW
+            } else {
+                Color::new(98, 184, 88, 255)
+            },
+        );
+
+        let vehicle_label = format!("< VEHICULO: {} >", vehicle_name.to_uppercase());
+        let vehicle_label_width = draw.measure_text(&vehicle_label, 22);
+        draw.draw_text(
+            &vehicle_label,
+            vehicle_x + (vehicle_w - vehicle_label_width) / 2,
+            vehicle_y + 18,
+            22,
+            if vehicle_selected {
+                Color::YELLOW
+            } else {
+                Color::RAYWHITE
+            },
+        );
+
+        let hint = "W/S elegir fila  -  A/D cambiar  -  ENTER correr  -  BACKSPACE menu";
+        let hint_size = 20;
+        let hint_width = draw.measure_text(hint, hint_size);
+        draw.draw_rectangle(
+            (width - hint_width) / 2 - 22,
+            height - 62,
+            hint_width + 44,
+            42,
+            Color::new(23, 35, 42, 230),
+        );
+        draw.draw_rectangle_lines(
+            (width - hint_width) / 2 - 22,
+            height - 62,
+            hint_width + 44,
+            42,
+            Color::new(98, 184, 88, 255),
+        );
+        draw.draw_text(
+            hint,
+            (width - hint_width) / 2,
+            height - 50,
+            hint_size,
+            Color::RAYWHITE,
+        );
+
+        self.draw_track_vehicle_badge(draw, width, height, kart_color, vehicle_index);
+    }
+
+    fn draw_track_card(
+        &self,
+        draw: &mut RaylibDrawHandle,
+        x: i32,
+        y: i32,
+        w: i32,
+        h: i32,
+        track: usize,
+        selected: bool,
+        track_focus: bool,
+    ) {
+        draw.draw_rectangle(x + 8, y + 8, w, h, Color::new(10, 18, 22, 170));
+        draw.draw_rectangle(x, y, w, h, Color::new(23, 35, 42, 238));
+        draw.draw_rectangle_lines(
+            x,
+            y,
+            w,
+            h,
+            if selected {
+                if track_focus {
+                    Color::YELLOW
+                } else {
+                    Color::new(170, 150, 70, 255)
+                }
+            } else {
+                Color::new(98, 184, 88, 255)
+            },
+        );
+
+        let preview_x = x + 24;
+        let preview_y = y + 24;
+        let preview_w = w - 48;
+        let preview_h = h - 92;
+
+        draw.draw_rectangle(
+            preview_x,
+            preview_y,
+            preview_w,
+            preview_h,
+            if track == 1 {
+                Color::new(47, 52, 62, 255)
+            } else {
+                Color::new(64, 154, 72, 255)
+            },
+        );
+
+        if track == 1 {
+            self.draw_city_track_preview(draw, preview_x, preview_y, preview_w, preview_h);
+        } else {
+            self.draw_garden_track_preview(draw, preview_x, preview_y, preview_w, preview_h);
+        }
+
+        let name = if track == 1 {
+            "GRAN PREMIO METRO"
+        } else {
+            "JARDIN RUST"
+        };
+        let name_size = 22;
+        let name_width = draw.measure_text(name, name_size);
+        draw.draw_text(
+            name,
+            x + (w - name_width) / 2,
+            y + h - 52,
+            name_size,
+            Color::RAYWHITE,
+        );
+
+        if selected {
+            draw.draw_text("LISTO", x + 20, y + h - 27, 18, Color::YELLOW);
+        }
+    }
+
+    fn draw_garden_track_preview(
+        &self,
+        draw: &mut RaylibDrawHandle,
+        x: i32,
+        y: i32,
+        w: i32,
+        h: i32,
+    ) {
+        let road = Color::new(194, 171, 128, 255);
+        draw.draw_rectangle(x + w / 8, y + h / 5, w * 3 / 4, h / 5, road);
+        draw.draw_rectangle(x + w * 5 / 8, y + h / 5, w / 5, h * 3 / 5, road);
+        draw.draw_rectangle(x + w / 8, y + h * 3 / 5, w * 3 / 4, h / 5, road);
+        draw.draw_rectangle(x + w / 8, y + h / 5, w / 5, h * 3 / 5, road);
+        draw.draw_circle(
+            x + w / 2,
+            y + h / 2,
+            h as f32 * 0.18,
+            Color::new(95, 175, 95, 255),
+        );
+        draw.draw_circle(
+            x + w / 2,
+            y + h / 2,
+            h as f32 * 0.10,
+            Color::new(76, 194, 232, 255),
         );
     }
 
-    fn menu_shade_color(&self, color: Color, factor: f32) -> Color {
-        Color::new(
-            (color.r as f32 * factor).clamp(0.0, 255.0) as u8,
-            (color.g as f32 * factor).clamp(0.0, 255.0) as u8,
-            (color.b as f32 * factor).clamp(0.0, 255.0) as u8,
-            color.a,
-        )
+    fn draw_city_track_preview(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32, w: i32, h: i32) {
+        let road = Color::new(58, 61, 69, 255);
+        let curb = Color::new(245, 205, 55, 255);
+
+        draw.draw_rectangle(x + 18, y + 28, w - 36, 34, road);
+        draw.draw_rectangle(x + w - 72, y + 28, 34, h - 62, road);
+        draw.draw_rectangle(x + 18, y + h - 64, w - 36, 34, road);
+        draw.draw_rectangle(x + 18, y + 62, 34, h - 92, road);
+        draw.draw_rectangle(x + w / 4, y + h / 2 - 22, w / 2, 34, road);
+
+        for i in 0..5 {
+            draw.draw_rectangle(
+                x + 34 + i * 42,
+                y + 12,
+                28,
+                12,
+                Color::new(84, 178, 255, 255),
+            );
+            draw.draw_rectangle(
+                x + 44 + i * 36,
+                y + h - 24,
+                22,
+                12,
+                Color::new(255, 92, 210, 255),
+            );
+        }
+
+        draw.draw_rectangle(x + 18, y + 28, w - 36, 4, curb);
+        draw.draw_rectangle(x + 18, y + h - 34, w - 36, 4, curb);
+    }
+
+    fn draw_track_vehicle_badge(
+        &self,
+        draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
+        color: Color,
+        vehicle_index: usize,
+    ) {
+        let badge_w = 190;
+        let badge_h = 70;
+        let x = width - badge_w - 34;
+        let y = height - badge_h - 28;
+
+        draw.draw_rectangle(x, y, badge_w, badge_h, Color::new(23, 35, 42, 230));
+        draw.draw_rectangle_lines(x, y, badge_w, badge_h, Color::YELLOW);
+        draw.draw_text("VEHICULO", x + 18, y + 12, 18, Color::YELLOW);
+        draw.draw_text(
+            if vehicle_index % 2 == 1 {
+                "MOTO"
+            } else {
+                "KART"
+            },
+            x + 18,
+            y + 38,
+            24,
+            color,
+        );
     }
 
     fn draw_menu_item(
@@ -837,7 +999,11 @@ impl Framebuffer {
                 draw.draw_rectangle_lines(icon_x + 8, icon_y + 11, 20, 14, Color::RAYWHITE);
             }
 
-            2 => self.draw_pad_icon(draw, icon_x + 8, icon_y + 11),
+            2 => self.draw_music_icon(draw, icon_x + 9, icon_y + 8, accent),
+
+            3 => self.draw_sfx_icon(draw, icon_x + 8, icon_y + 9, accent),
+
+            4 => self.draw_pad_icon(draw, icon_x + 8, icon_y + 11),
 
             _ => {
                 draw.draw_line_ex(
@@ -920,7 +1086,35 @@ impl Framebuffer {
         draw.draw_circle(x + 18, y + 17, 2.0, Color::BLUE);
     }
 
-    fn draw_pause_screen(&self, draw: &mut RaylibDrawHandle, width: i32, height: i32) {
+    fn draw_music_icon(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32, accent: Color) {
+        draw.draw_rectangle(x + 15, y, 5, 24, accent);
+        draw.draw_rectangle(x + 19, y, 10, 4, accent);
+        draw.draw_circle(x + 10, y + 23, 7.0, accent);
+        draw.draw_circle(x + 24, y + 22, 7.0, accent);
+    }
+
+    fn draw_sfx_icon(&self, draw: &mut RaylibDrawHandle, x: i32, y: i32, accent: Color) {
+        draw.draw_rectangle(x, y + 9, 7, 10, accent);
+        draw.draw_triangle(
+            Vector2::new((x + 7) as f32, (y + 9) as f32),
+            Vector2::new((x + 17) as f32, (y + 3) as f32),
+            Vector2::new((x + 17) as f32, (y + 25) as f32),
+            accent,
+        );
+
+        draw.draw_line(x + 22, y + 9, x + 27, y + 5, Color::RAYWHITE);
+        draw.draw_line(x + 22, y + 14, x + 30, y + 14, Color::RAYWHITE);
+        draw.draw_line(x + 22, y + 19, x + 27, y + 23, Color::RAYWHITE);
+    }
+
+    fn draw_pause_screen(
+        &self,
+        draw: &mut RaylibDrawHandle,
+        width: i32,
+        height: i32,
+        selected_option: usize,
+        music_enabled: bool,
+    ) {
         draw.draw_rectangle(0, 0, width, height, Color::new(0, 0, 0, 150));
 
         let title = "PAUSA";
@@ -937,21 +1131,72 @@ impl Framebuffer {
             Color::YELLOW,
         );
 
-        let resume = "ENTER / R PARA CONTINUAR";
+        let panel_w = 360;
+        let panel_h = 212;
+        let panel_x = (width - panel_w) / 2;
+        let panel_y = height / 2 - 10;
 
-        let resume_size = 24;
-
-        let resume_width = draw.measure_text(resume, resume_size);
-
-        draw.draw_text(
-            resume,
-            (width - resume_width) / 2,
-            height / 2 + 5,
-            resume_size,
-            Color::RAYWHITE,
+        draw.draw_rectangle(
+            panel_x + 7,
+            panel_y + 7,
+            panel_w,
+            panel_h,
+            Color::new(5, 8, 12, 155),
         );
+        draw.draw_rectangle(
+            panel_x,
+            panel_y,
+            panel_w,
+            panel_h,
+            Color::new(20, 31, 37, 235),
+        );
+        draw.draw_rectangle_lines(panel_x, panel_y, panel_w, panel_h, Color::YELLOW);
 
-        let hint = "P tambien reanuda";
+        let music_label = format!("Musica: {}", if music_enabled { "ON" } else { "OFF" });
+        let options = ["Continuar", music_label.as_str(), "Volver al menu"];
+
+        for (index, option) in options.iter().enumerate() {
+            let item_y = panel_y + 22 + index as i32 * 58;
+            let selected = selected_option == index;
+
+            draw.draw_rectangle(
+                panel_x + 38,
+                item_y,
+                panel_w - 76,
+                44,
+                if selected {
+                    Color::new(32, 47, 54, 255)
+                } else {
+                    Color::new(14, 24, 30, 220)
+                },
+            );
+
+            if selected {
+                draw.draw_rectangle_lines(panel_x + 38, item_y, panel_w - 76, 44, Color::YELLOW);
+                draw.draw_triangle(
+                    Vector2::new((panel_x + 18) as f32, (item_y + 13) as f32),
+                    Vector2::new((panel_x + 18) as f32, (item_y + 31) as f32),
+                    Vector2::new((panel_x + 32) as f32, (item_y + 22) as f32),
+                    Color::YELLOW,
+                );
+            }
+
+            draw.draw_text(
+                option,
+                panel_x + 64,
+                item_y + 12,
+                22,
+                if selected {
+                    Color::YELLOW
+                } else if index == 1 && music_enabled {
+                    Color::YELLOW
+                } else {
+                    Color::RAYWHITE
+                },
+            );
+        }
+
+        let hint = "W/S elegir - ENTER aceptar - R/P continuar - BACKSPACE menu";
 
         let hint_size = 18;
 
@@ -960,7 +1205,7 @@ impl Framebuffer {
         draw.draw_text(
             hint,
             (width - hint_width) / 2,
-            height / 2 + 45,
+            panel_y + panel_h + 22,
             hint_size,
             Color::LIGHTGRAY,
         );
